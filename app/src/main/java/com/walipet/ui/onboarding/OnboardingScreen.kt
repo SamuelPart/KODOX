@@ -21,6 +21,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -200,11 +201,19 @@ private fun ListenerStep(enabled: Boolean, onOpenSettings: () -> Unit) {
     ) {
         PixelArtPet(stage = EvolutionStage.EGG, mood = PetMood.CONTENT, modifier = Modifier.size(120.dp))
         if (enabled) {
-            Text(
-                text = stringResource(R.string.onb_listener_done),
-                style = MaterialTheme.typography.labelLarge,
-                color = ArcadePrimary,
-            )
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                Icon(
+                    imageVector = androidx.compose.material.icons.Icons.Filled.CheckCircle,
+                    contentDescription = null,
+                    tint = ArcadePrimary,
+                    modifier = Modifier.size(20.dp),
+                )
+                Text(
+                    text = stringResource(R.string.onb_listener_done),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = ArcadePrimary,
+                )
+            }
         } else {
             Button(onClick = onOpenSettings, colors = ButtonDefaults.buttonColors(containerColor = ArcadePrimary)) {
                 Text(text = stringResource(R.string.onb_listener_action), style = MaterialTheme.typography.labelLarge)
@@ -225,10 +234,11 @@ private fun NotificationsStep(onRequest: () -> Unit) {
                 Text(text = stringResource(R.string.onb_notifications_action), style = MaterialTheme.typography.labelLarge)
             }
         } else {
-            Text(
-                text = "✓",
-                style = MaterialTheme.typography.headlineMedium,
-                color = ArcadePrimary,
+            Icon(
+                imageVector = androidx.compose.material.icons.Icons.Filled.CheckCircle,
+                contentDescription = null,
+                tint = ArcadePrimary,
+                modifier = Modifier.size(40.dp),
             )
         }
     }

@@ -12,8 +12,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -121,7 +125,12 @@ fun SetupScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
-                    Text(text = "🎉", style = MaterialTheme.typography.headlineMedium)
+                    Icon(
+                        imageVector = Icons.Filled.CheckCircle,
+                        contentDescription = null,
+                        tint = ArcadePrimary,
+                        modifier = Modifier.size(44.dp),
+                    )
                     Text(
                         text = stringResource(R.string.setup_done_title),
                         style = MaterialTheme.typography.titleMedium,
@@ -184,9 +193,15 @@ private fun SetupRow(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            Icon(
+                imageVector = if (ok) Icons.Filled.CheckCircle else Icons.Filled.Cancel,
+                contentDescription = null,
+                tint = if (ok) ArcadePrimary else ArcadeError,
+                modifier = Modifier.size(24.dp),
+            )
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "${if (ok) "✓" else "✗"}  $title",
+                    text = title,
                     style = MaterialTheme.typography.titleSmall,
                     color = if (ok) ArcadePrimary else ArcadeError,
                 )

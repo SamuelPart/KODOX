@@ -48,7 +48,7 @@ object DefaultRules {
         Rule(
             name = "Saludo",
             trigger = "hola",
-            response = "¡Hola! 👋 Gracias por escribir. Te responderé en un momento.",
+            response = "¡Hola! Gracias por escribir. Te responderé en un momento.",
             matchMode = com.walipet.engine.model.MatchMode.CONTAINS,
         ),
         Rule(
@@ -60,7 +60,7 @@ object DefaultRules {
         Rule(
             name = "Catálogo",
             trigger = "catálogo",
-            response = "Te paso el catálogo en un momento. 📦",
+            response = "Te paso el catálogo en un momento.",
             matchMode = com.walipet.engine.model.MatchMode.CONTAINS,
         ),
     )

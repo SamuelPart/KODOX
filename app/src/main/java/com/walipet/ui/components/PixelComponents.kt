@@ -6,12 +6,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -25,28 +26,27 @@ import androidx.compose.ui.unit.dp
 import com.walipet.ui.theme.ArcadeOutline
 import com.walipet.ui.theme.ArcadePrimary
 import com.walipet.ui.theme.ArcadeSecondary
-import com.walipet.ui.theme.ArcadeStreak
 import com.walipet.ui.theme.ArcadeSurface
 import com.walipet.ui.theme.ArcadeSurfaceVariant
 
-/** Tarjeta base con bordes “pixel” (esquinas pequeñas + borde). */
+/** Tarjeta base moderna: fondo claro, esquinas redondeadas y borde sutil. */
 @Composable
 fun PixelCard(
     modifier: Modifier = Modifier,
-    borderColor: Color = ArcadeOutline,
+    borderColor: Color = ArcadeOutline.copy(alpha = 0.4f),
     content: @Composable () -> Unit,
 ) {
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(18.dp))
             .background(ArcadeSurface)
-            .border(width = 2.dp, color = borderColor, shape = RoundedCornerShape(8.dp))
-            .padding(14.dp),
+            .border(width = 1.dp, color = borderColor, shape = RoundedCornerShape(18.dp))
+            .padding(16.dp),
         content = { content() },
     )
 }
 
-/** Barra de progreso segmentada estilo RPG (20 bloques). */
+/** Barra de progreso suave y redondeada (estilo iOS). */
 @Composable
 fun PixelProgressBar(
     progress: Float,
@@ -54,25 +54,23 @@ fun PixelProgressBar(
     color: Color = ArcadePrimary,
     segments: Int = 20,
 ) {
-    val filled = (progress.coerceIn(0f, 1f) * segments).toInt()
-    Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(2.dp),
+    val fraction = progress.coerceIn(0f, 1f)
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(8.dp))
+            .background(ArcadeSurfaceVariant)
+            .height(12.dp),
     ) {
-        repeat(segments) { index ->
-            val isFilled = index < filled
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .height(12.dp)
-                    .clip(RoundedCornerShape(2.dp))
-                    .background(if (isFilled) color else ArcadeSurfaceVariant),
-            )
-        }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(fraction)
+                .clip(RoundedCornerShape(8.dp))
+                .background(color),
+        )
     }
 }
 
-/** Barra vertical de mini-estadística (energía / felicidad). */
+/** Barra de mini-estadística (energía / felicidad). */
 @Composable
 fun PixelMiniBar(
     label: String,
@@ -86,7 +84,7 @@ fun PixelMiniBar(
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        PixelProgressBar(progress = value / 100f, segments = 12, color = color)
+        PixelProgressBar(progress = value / 100f, color = color)
     }
 }
 
@@ -100,10 +98,10 @@ fun StatChip(
 ) {
     Column(
         modifier = modifier
-            .clip(RoundedCornerShape(6.dp))
-            .background(ArcadeSurfaceVariant)
-            .border(1.dp, ArcadeOutline, RoundedCornerShape(6.dp))
-            .padding(horizontal = 12.dp, vertical = 8.dp),
+            .clip(RoundedCornerShape(14.dp))
+            .background(ArcadeSurface)
+            .border(1.dp, ArcadeOutline.copy(alpha = 0.4f), RoundedCornerShape(14.dp))
+            .padding(horizontal = 12.dp, vertical = 10.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
@@ -120,28 +118,27 @@ fun StatChip(
     }
 }
 
-/** Insignia de nivel. */
+/** Insignia de nivel: píldora rellena estilo iOS. */
 @Composable
 fun LevelBadge(level: Int, modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
-            .clip(RoundedCornerShape(4.dp))
-            .background(ArcadeSurfaceVariant)
-            .border(1.dp, ArcadeStreak, RoundedCornerShape(4.dp))
-            .padding(horizontal = 10.dp, vertical = 4.dp),
+            .clip(RoundedCornerShape(50))
+            .background(ArcadePrimary)
+            .padding(horizontal = 12.dp, vertical = 6.dp),
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
-            imageVector = Icons.Filled.Favorite,
+            imageVector = Icons.Filled.Star,
             contentDescription = null,
-            tint = ArcadeStreak,
+            tint = Color.White,
             modifier = Modifier.size(14.dp),
         )
         Text(
             text = "NIVEL $level",
             style = MaterialTheme.typography.labelLarge,
-            color = ArcadeStreak,
+            color = Color.White,
         )
     }
 }
