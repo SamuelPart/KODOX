@@ -6,6 +6,7 @@ Biblioteca Kotlin **sin dependencias de Android** con toda la lógica de negocio
 |---|---|
 | `com.walipet.engine.model` | Modelos puros: `Rule`, `PetState`, `AutomationLog`, `Achievement`, `EvolutionStage`, `PetMood`, `MatchMode`, `ChatScope`, `ParsedWhatsAppMessage`… |
 | `com.walipet.engine.rule` | `RuleEngine` (evaluación de reglas), `MessageMatcher` (exacta/contiene/prefijo/regex), `WhatsAppMessageParser` (notificaciones → mensaje normalizado). |
+| `com.walipet.engine.voice` | Clasificador de notificaciones de WhatsApp y planificador de voz en off (última hora exacta / «N mensajes de M chats» / silencio si no es un chat). |
 | `com.walipet.engine.pet` | `XpEngine` (curva 100×nivel), `StreakEngine` (rachas y energía/felicidad), `PetMoodResolver`, `EvolutionResolver`, `AchievementChecker` (12 logros). |
 | `com.walipet.engine.stats` | `StatsCalculator` (hoy/semana/mes, tiempo ahorrado, gráfico diario). |
 | `com.walipet.engine.time` | `Clock` (abstracción de tiempo inyectable para tests). |
@@ -34,7 +35,8 @@ kotlinc -cp "$LIBS" -jvm-target 11 -d /tmp/engine-out src/main/kotlin src/test/k
      com.walipet.engine.MessageMatcherTest com.walipet.engine.RuleEngineTest \
      com.walipet.engine.WhatsAppMessageParserTest com.walipet.engine.XpEngineTest \
      com.walipet.engine.StreakEngineTest com.walipet.engine.EvolutionAndMoodTest \
-     com.walipet.engine.StatsCalculatorTest com.walipet.engine.AchievementCheckerTest
+     com.walipet.engine.StatsCalculatorTest com.walipet.engine.AchievementCheckerTest \
+     com.walipet.engine.WhatsAppNotificationClassifierTest com.walipet.engine.VoiceOverPlannerTest
 ```
 
 > El runner `TestRunnerKt` es un pequeño ejecutor de tests con reflexión que

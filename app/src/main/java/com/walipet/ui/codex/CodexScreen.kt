@@ -89,6 +89,7 @@ fun CodexScreen(
         PixelProgressBar(
             progress = if (state.achievements.isEmpty()) 0f else state.unlockedCount.toFloat() / state.achievements.size,
             color = ArcadeSecondary,
+            modifier = Modifier.fillMaxWidth(),
         )
         PixelSpacer(12.dp)
 

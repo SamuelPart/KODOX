@@ -9,8 +9,9 @@ import com.walipet.engine.model.NotificationRawData
  * Puente entre el framework de Android y el parser puro del motor:
  * convierte un [StatusBarNotification] en un [NotificationRawData] sin lógica.
  *
- * Todo el análisis de texto vive en `engine` (WhatsAppMessageParser), que
- * además se puede probar de forma unitaria sin emulador.
+ * Todo el análisis de texto vive en `engine` (WhatsAppMessageParser /
+ * WhatsAppNotificationClassifier), que además se puede probar de forma
+ * unitaria sin emulador.
  */
 object NotificationExtractor {
 
@@ -20,14 +21,19 @@ object NotificationExtractor {
 
         val title = extras.getCharSequence(Notification.EXTRA_TITLE)
         val text = extras.getCharSequence(Notification.EXTRA_TEXT)
+        val bigText = extras.getCharSequence(Notification.EXTRA_BIG_TEXT)
+        val subText = extras.getCharSequence(Notification.EXTRA_SUB_TEXT)
+
+        val messages = mutableListOf<Pair<CharSequence?, CharSequence?>>()
+        val timestamps = mutableListOf<Long>()
 
         // Mensajes estructurados (MessagingStyle) — los usa WhatsApp en Android 7+.
-        val messages = mutableListOf<Pair<CharSequence?, CharSequence?>>()
         try {
             val style = NotificationCompat.MessagingStyle.extractMessagingStyleFromNotification(notification)
             if (style != null) {
                 for (message in style.messages) {
                     messages += message.sender to message.text
+                    timestamps += message.timestamp
                 }
             }
         } catch (_: Throwable) {
@@ -39,19 +45,33 @@ object NotificationExtractor {
             val wearable = NotificationCompat.WearableExtender(notification)
             for (message in wearable.messages) {
                 messages += message.sender to message.text
+                timestamps += 0L
             }
         } catch (_: Throwable) {
             // Sin wearable: no pasa nada.
         }
 
-        val hasReplyAction = notification.actions?.any { it.remoteInputs.isNotEmpty() } == true
+        val hasReplyAction = notification.actions?.any { action ->
+            action.remoteInputs?.isNotEmpty() == true
+        } == true
+
+        val postedAt = when {
+            notification.`when` > 0L -> notification.`when`
+            sbn.postTime > 0L -> sbn.postTime
+            else -> 0L
+        }
 
         return NotificationRawData(
             packageName = sbn.packageName,
             title = title,
             text = text,
             messages = messages,
+            messageTimestamps = timestamps,
             hasReplyAction = hasReplyAction,
+            postedAtEpochMilli = postedAt,
+            category = notification.category,
+            bigText = bigText,
+            subText = subText,
         )
     }
 }

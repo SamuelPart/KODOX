@@ -14,6 +14,7 @@ import com.walipet.engine.model.Rule
 import com.walipet.engine.rule.RuleEngine
 import com.walipet.engine.rule.RuleMatch
 import com.walipet.engine.time.Clock
+import com.walipet.engine.voice.VoiceLine
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -39,6 +40,7 @@ class AutomatedReplier(
     private val ruleRepository: RuleRepository,
     private val logRepository: AutomationLogRepository,
     private val notificationHelper: NotificationHelper,
+    private val voiceOverSpeaker: VoiceOverSpeaker? = null,
     private val clock: Clock = Clock.SYSTEM,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -83,6 +85,11 @@ class AutomatedReplier(
                     xpGained = automation.xpGained,
                     leveledUp = automation.leveledUp,
                     newLevel = automation.pet.level,
+                )
+                // Voz en off: el mensaje enviado se lee tal cual (está en la última hora).
+                voiceOverSpeaker?.speak(
+                    listOf(VoiceLine.ExactMessage(sender = message.sender, text = match.rule.response)),
+                    dedupKey = "sent:${message.sender}:${match.rule.id}",
                 )
                 Outcome.Replied(
                     rule = match.rule,

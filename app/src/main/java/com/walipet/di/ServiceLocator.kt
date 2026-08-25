@@ -9,6 +9,7 @@ import com.walipet.data.repository.SettingsRepository
 import com.walipet.engine.time.Clock
 import com.walipet.service.AutomatedReplier
 import com.walipet.service.NotificationHelper
+import com.walipet.service.VoiceOverSpeaker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -37,6 +38,10 @@ class ServiceLocator private constructor(context: Context) {
 
     val notificationHelper: NotificationHelper by lazy { NotificationHelper(appContext) }
 
+    val voiceOverSpeaker: VoiceOverSpeaker by lazy {
+        VoiceOverSpeaker(appContext, settingsRepository)
+    }
+
     val automatedReplier: AutomatedReplier by lazy {
         AutomatedReplier(
             context = appContext,
@@ -44,6 +49,7 @@ class ServiceLocator private constructor(context: Context) {
             ruleRepository = ruleRepository,
             logRepository = automationLogRepository,
             notificationHelper = notificationHelper,
+            voiceOverSpeaker = voiceOverSpeaker,
             clock = Clock.SYSTEM,
         )
     }
@@ -54,6 +60,8 @@ class ServiceLocator private constructor(context: Context) {
             petRepository.ensureSeeded()
             ruleRepository.ensureSeeded()
         }
+        // Calienta el TTS para que la primera lectura no se pierda.
+        voiceOverSpeaker
     }
 
     companion object {

@@ -18,7 +18,7 @@ diaria y evoluciona a través de 4 etapas pixel art.
 
 | Pantalla | Qué hace |
 |---|---|
-| **Hábitat** (Dashboard) | Mascota pixel art animada con estados de ánimo (feliz, triste, dormida), barra de XP estilo RPG, racha diaria 🔥, energía/felicidad y actividad reciente. |
+| **Hábitat** (Dashboard) | Mascota pixel art animada con estados de ánimo (feliz, triste, dormida), barras de XP/energía/felicidad que se colorean al avanzar, racha diaria 🔥, voz en off y actividad reciente. |
 | **Reglas** (Rule Builder) | Crea reglas del tipo *"Si el mensaje contiene «precio» → responde «Hola, te enviaremos la información en un momento.»"* con modos de coincidencia (exacta, contiene, empieza con, regex), ámbito de chats (todos/privados/grupos) y mayúsculas sensibles. |
 | **Codex** | Línea de evolución (Huevo → Cría → Joven → Épica) y 12 logros/medallas desbloqueables. |
 | **Stats** | Métricas de impacto: respuestas hoy/semana/mes, XP total, tiempo ahorrado estimado (45 s por respuesta), gráfico de los últimos 7 días y feed de actividad en tiempo real. |
@@ -29,6 +29,7 @@ diaria y evoluciona a través de 4 etapas pixel art.
 - Curva de niveles progresiva: `100 × nivel` XP para subir (N1→2: 100, N2→3: 200, …).
 - Racha diaria: automatizar al menos una vez al día mantiene/crece la racha.
 - Estados de ánimo derivados de la actividad reciente (energía y felicidad 0-100).
+- **Voz en off** (TTS local): lee el texto exacto de los mensajes de chat de la **última hora**; el resto lo resume como «N mensajes de M chats». Ignora avisos de WhatsApp que no son de un chat (llamadas, Web, copias de seguridad, estados…).
 
 ---
 
@@ -104,7 +105,7 @@ Notificación WhatsApp ──► NotificationListenerService
 
 ## 🧪 Testing
 
-- **Motor (67 tests):** reglas (exacta/contiene/prefijo/regex, ámbito, orden),
+- **Motor (unitarios):** reglas (exacta/contiene/prefijo/regex, ámbito, orden), voz en off (última hora exacta / resumen / ignorar no-chats),
   parser de WhatsApp (privados, grupos 👥, mensajes estructurados, casos
   límite), XP y curvas de nivel, rachas, estados de ánimo, estadísticas y
   logros. `./gradlew :engine:test`

@@ -11,6 +11,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.VolumeOff
+import androidx.compose.material.icons.filled.VolumeUp
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -56,14 +61,25 @@ fun DashboardScreen(
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 16.dp, vertical = 12.dp),
     ) {
-        // Cabecera: nombre + insignia de nivel.
+        // Cabecera: nombre + voz en off + insignia de nivel.
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(text = stringResource(R.string.dashboard_title), style = MaterialTheme.typography.headlineMedium)
-            LevelBadge(level = pet.level)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = { viewModel.toggleVoiceOver() }) {
+                    Icon(
+                        imageVector = if (state.voiceOverEnabled) Icons.Filled.VolumeUp else Icons.Filled.VolumeOff,
+                        contentDescription = stringResource(
+                            if (state.voiceOverEnabled) R.string.voice_over_on else R.string.voice_over_off,
+                        ),
+                        tint = if (state.voiceOverEnabled) ArcadePrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                LevelBadge(level = pet.level)
+            }
         }
 
         PixelSpacer(8.dp)
@@ -117,7 +133,10 @@ fun DashboardScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-                PixelProgressBar(progress = if (xpToNext > 0) pet.xp / xpToNext.toFloat() else 1f)
+                PixelProgressBar(
+                    progress = if (xpToNext > 0) pet.xp / xpToNext.toFloat() else 1f,
+                    modifier = Modifier.fillMaxWidth(),
+                )
             }
         }
 

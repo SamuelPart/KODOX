@@ -1,14 +1,21 @@
 package com.walipet.ui.components
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -16,6 +23,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -46,7 +55,11 @@ fun PixelCard(
     )
 }
 
-/** Barra de progreso segmentada estilo RPG (20 bloques). */
+/**
+ * Barra de progreso estilo RPG: el relleno **gana color conforme avanza**
+ * (animación continua) sobre un riel oscuro. Los separadores pixel se
+ * superponen para no perder el look arcade.
+ */
 @Composable
 fun PixelProgressBar(
     progress: Float,
@@ -54,20 +67,50 @@ fun PixelProgressBar(
     color: Color = ArcadePrimary,
     segments: Int = 20,
 ) {
-    val filled = (progress.coerceIn(0f, 1f) * segments).toInt()
-    Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(2.dp),
+    val target = progress.let { value ->
+        when {
+            value.isNaN() -> 0f
+            else -> value.coerceIn(0f, 1f)
+        }
+    }
+    val animated = remember { Animatable(0f) }
+    LaunchedEffect(target) {
+        animated.animateTo(
+            targetValue = target,
+            animationSpec = tween(durationMillis = 700, easing = FastOutSlowInEasing),
+        )
+    }
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(14.dp)
+            .clip(RoundedCornerShape(3.dp))
+            .background(ArcadeSurfaceVariant)
+            .border(1.dp, ArcadeOutline, RoundedCornerShape(3.dp)),
     ) {
-        repeat(segments) { index ->
-            val isFilled = index < filled
+        val fraction = animated.value
+        if (fraction > 0f) {
             Box(
                 modifier = Modifier
-                    .weight(1f)
-                    .height(12.dp)
-                    .clip(RoundedCornerShape(2.dp))
-                    .background(if (isFilled) color else ArcadeSurfaceVariant),
+                    .align(Alignment.CenterStart)
+                    .fillMaxHeight()
+                    .fillMaxWidth(fraction.coerceIn(0.03f, 1f))
+                    .background(color),
             )
+        }
+        Row(modifier = Modifier.fillMaxSize()) {
+            repeat(segments) { index ->
+                Box(modifier = Modifier.weight(1f).fillMaxHeight())
+                if (index < segments - 1) {
+                    Box(
+                        modifier = Modifier
+                            .width(1.dp)
+                            .fillMaxHeight()
+                            .background(ArcadeSurface.copy(alpha = 0.45f)),
+                    )
+                }
+            }
         }
     }
 }
@@ -80,13 +123,24 @@ fun PixelMiniBar(
     modifier: Modifier = Modifier,
     color: Color = ArcadeSecondary,
 ) {
-    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        PixelProgressBar(progress = value / 100f, segments = 12, color = color)
+    Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Text(
+                text = "$value",
+                style = MaterialTheme.typography.labelMedium,
+                color = color,
+            )
+        }
+        PixelProgressBar(progress = value.coerceIn(0, 100) / 100f, segments = 12, color = color)
     }
 }
 
