@@ -9,11 +9,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
@@ -52,7 +52,7 @@ fun PixelCard(
     )
 }
 
-/** Barra de progreso suave y redondeada (estilo iOS). */
+/** Barra de progreso: el relleno gana color conforme avanza. */
 @Composable
 fun PixelProgressBar(
     progress: Float,
@@ -60,19 +60,32 @@ fun PixelProgressBar(
     color: Color = ArcadePrimary,
     segments: Int = 20,
 ) {
-    val fraction = progress.coerceIn(0f, 1f)
+    val target = if (progress.isNaN()) 0f else progress.coerceIn(0f, 1f)
+    val animated = remember { Animatable(0f) }
+    LaunchedEffect(target) {
+        animated.animateTo(
+            targetValue = target,
+            animationSpec = tween(durationMillis = 700, easing = FastOutSlowInEasing),
+        )
+    }
+    val fraction = animated.value
     Box(
         modifier = modifier
+            .fillMaxWidth()
+            .height(12.dp)
             .clip(RoundedCornerShape(8.dp))
-            .background(ArcadeSurfaceVariant)
-            .height(12.dp),
+            .background(ArcadeSurfaceVariant),
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth(fraction)
-                .clip(RoundedCornerShape(8.dp))
-                .background(color),
-        )
+        if (fraction > 0f) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .fillMaxHeight()
+                    .fillMaxWidth(fraction.coerceIn(0.03f, 1f))
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(color),
+            )
+        }
     }
 }
 

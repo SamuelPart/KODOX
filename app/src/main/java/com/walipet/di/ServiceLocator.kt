@@ -38,10 +38,6 @@ class ServiceLocator private constructor(context: Context) {
 
     val notificationHelper: NotificationHelper by lazy { NotificationHelper(appContext) }
 
-    val voiceOverSpeaker: VoiceOverSpeaker by lazy {
-        VoiceOverSpeaker(appContext, settingsRepository)
-    }
-
     val automatedReplier: AutomatedReplier by lazy {
         AutomatedReplier(
             context = appContext,
@@ -53,7 +49,7 @@ class ServiceLocator private constructor(context: Context) {
         )
     }
 
-    /** Voz en off: lee en voz alta los mensajes entrantes de WhatsApp. */
+    /** Voz en off: lee en voz alta los mensajes que te envían (no las respuestas automáticas). */
     val voiceOver: VoiceOver by lazy { VoiceOver(appContext) }
 
     /** Siembra los datos iniciales (mascota + reglas de ejemplo) en primer uso. */
@@ -62,8 +58,6 @@ class ServiceLocator private constructor(context: Context) {
             petRepository.ensureSeeded()
             ruleRepository.ensureSeeded()
         }
-        // Calienta el TTS para que la primera lectura no se pierda.
-        voiceOverSpeaker
     }
 
     companion object {

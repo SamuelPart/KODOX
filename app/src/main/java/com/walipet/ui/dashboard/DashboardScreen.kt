@@ -58,25 +58,14 @@ fun DashboardScreen(
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 16.dp, vertical = 12.dp),
     ) {
-        // Cabecera: nombre + voz en off + insignia de nivel.
+        // Cabecera: nombre + insignia de nivel.
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(text = stringResource(R.string.dashboard_title), style = MaterialTheme.typography.headlineMedium)
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = { viewModel.toggleVoiceOver() }) {
-                    Icon(
-                        imageVector = if (state.voiceOverEnabled) Icons.Filled.VolumeUp else Icons.Filled.VolumeOff,
-                        contentDescription = stringResource(
-                            if (state.voiceOverEnabled) R.string.voice_over_on else R.string.voice_over_off,
-                        ),
-                        tint = if (state.voiceOverEnabled) ArcadePrimary else MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                LevelBadge(level = pet.level)
-            }
+            LevelBadge(level = pet.level)
         }
 
         PixelSpacer(8.dp)

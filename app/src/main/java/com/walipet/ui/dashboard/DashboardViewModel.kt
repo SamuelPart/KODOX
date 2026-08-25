@@ -9,7 +9,6 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.walipet.data.repository.AutomationLogRepository
 import com.walipet.data.repository.PetRepository
 import com.walipet.data.repository.RuleRepository
-import com.walipet.data.repository.SettingsRepository
 import com.walipet.di.ServiceLocator
 import com.walipet.engine.model.AutomationLog
 import com.walipet.engine.model.PetMood
@@ -17,7 +16,6 @@ import com.walipet.engine.model.PetState
 import com.walipet.engine.pet.PetMoodResolver
 import com.walipet.engine.pet.StreakEngine
 import com.walipet.engine.time.Clock
-import com.walipet.service.VoiceOverSpeaker
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -28,8 +26,6 @@ class DashboardViewModel(
     petRepository: PetRepository,
     logRepository: AutomationLogRepository,
     ruleRepository: RuleRepository,
-    private val settingsRepository: SettingsRepository,
-    private val voiceOverSpeaker: VoiceOverSpeaker,
 ) : ViewModel() {
 
     data class UiState(
@@ -39,15 +35,13 @@ class DashboardViewModel(
         val happiness: Int = PetState.MAX_HAPPINESS,
         val activeRuleCount: Int = 0,
         val recentLogs: List<AutomationLog> = emptyList(),
-        val voiceOverEnabled: Boolean = true,
     )
 
     val uiState: StateFlow<UiState> = combine(
         petRepository.observe(),
-        logRepository.observeRecent(limit = 40),
+        logRepository.observeRecent(limit = 5),
         ruleRepository.observeAll(),
-        settingsRepository.voiceOverEnabledFlow,
-    ) { pet, logs, rules, voiceOver ->
+    ) { pet, logs, rules ->
         val today = Clock.SYSTEM.today()
         val missed = StreakEngine.missedDays(pet.lastAutomationDate, today)
         UiState(
@@ -57,15 +51,8 @@ class DashboardViewModel(
             happiness = StreakEngine.happinessFor(pet.streakDays, missed),
             activeRuleCount = rules.count { it.isActive },
             recentLogs = logs,
-            voiceOverEnabled = voiceOver,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), UiState())
-
-    fun toggleVoiceOver() {
-        val enabled = !settingsRepository.voiceOverEnabled
-        settingsRepository.voiceOverEnabled = enabled
-        if (!enabled) voiceOverSpeaker.stop()
-    }
 
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
@@ -76,8 +63,6 @@ class DashboardViewModel(
                     petRepository = sl.petRepository,
                     logRepository = sl.automationLogRepository,
                     ruleRepository = sl.ruleRepository,
-                    settingsRepository = sl.settingsRepository,
-                    voiceOverSpeaker = sl.voiceOverSpeaker,
                 )
             }
         }

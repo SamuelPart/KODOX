@@ -1,9 +1,6 @@
 package com.walipet.data.repository
 
 import android.content.Context
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 
 /** Ajustes ligeros de la app (SharedPreferences). */
 class SettingsRepository(context: Context) {
@@ -15,7 +12,7 @@ class SettingsRepository(context: Context) {
         get() = prefs.getBoolean(KEY_ONBOARDING_COMPLETED, false)
         set(value) = prefs.edit().putBoolean(KEY_ONBOARDING_COMPLETED, value).apply()
 
-    /** `true` si WaliPet debe leer en voz alta los mensajes entrantes de WhatsApp. */
+    /** `true` si WaliPet debe leer en voz alta los mensajes que te envían. */
     var voiceOverEnabled: Boolean
         get() = prefs.getBoolean(KEY_VOICE_OVER_ENABLED, false)
         set(value) = prefs.edit().putBoolean(KEY_VOICE_OVER_ENABLED, value).apply()

@@ -159,7 +159,7 @@
     <string name="setup_finish">Listo</string>
     <string name="setup_features_title">Funciones</string>
     <string name="setup_voice_title">Leer en voz alta</string>
-    <string name="setup_voice_body">WaliPet leerá los mensajes de WhatsApp en voz alta, incluso con la pantalla apagada o mientras usas otras apps.</string>
+    <string name="setup_voice_body">Lee exactamente lo que te envían en la última hora. El resto se resume como «N mensajes de M chats». No lee respuestas automáticas ni avisos que no sean de un chat.</string>
 
     <!-- Notificaciones del sistema -->
     <string name="notif_reply_title">WaliPet respondió</string>
