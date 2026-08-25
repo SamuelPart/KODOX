@@ -24,3 +24,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "WaliPet"
 include(":app")
+include(":engine")
