@@ -18,9 +18,8 @@ import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Egg
 import androidx.compose.material.icons.filled.EmojiEvents
-import androidx.compose.material.icons.filled.HundredPoints
-import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LocalFireDepartment
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.RocketLaunch
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.SmartToy
@@ -292,7 +291,7 @@ private fun achievementDesc(a: Achievement): String = stringResource(
 private fun achievementIcon(key: String): ImageVector = when (key) {
     "robot" -> Icons.Filled.SmartToy
     "bolt" -> Icons.Filled.Bolt
-    "hundred" -> Icons.Filled.HundredPoints
+    "hundred" -> Icons.Filled.Bolt
     "rocket" -> Icons.Filled.RocketLaunch
     "flame" -> Icons.Filled.LocalFireDepartment
     "trophy" -> Icons.Filled.EmojiEvents

@@ -19,6 +19,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -203,7 +205,7 @@ private fun ListenerStep(enabled: Boolean, onOpenSettings: () -> Unit) {
         if (enabled) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 Icon(
-                    imageVector = androidx.compose.material.icons.Icons.Filled.CheckCircle,
+                    imageVector = Icons.Filled.CheckCircle,
                     contentDescription = null,
                     tint = ArcadePrimary,
                     modifier = Modifier.size(20.dp),
@@ -235,7 +237,7 @@ private fun NotificationsStep(onRequest: () -> Unit) {
             }
         } else {
             Icon(
-                imageVector = androidx.compose.material.icons.Icons.Filled.CheckCircle,
+                imageVector = Icons.Filled.CheckCircle,
                 contentDescription = null,
                 tint = ArcadePrimary,
                 modifier = Modifier.size(40.dp),
