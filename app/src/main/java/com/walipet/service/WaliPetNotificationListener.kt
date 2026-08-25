@@ -23,24 +23,20 @@ import kotlinx.coroutines.launch
 class WaliPetNotificationListener : NotificationListenerService() {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-    private val replier: AutomatedReplier by lazy {
-        ServiceLocator.getInstance(applicationContext).automatedReplier
-    }
+
+    private val serviceLocator by lazy { ServiceLocator.getInstance(applicationContext) }
+    private val replier: AutomatedReplier by lazy { serviceLocator.automatedReplier }
+    private val voiceOver: VoiceOver by lazy { serviceLocator.voiceOver }
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
         // Solo nos interesan las notificaciones de WhatsApp.
         if (sbn.packageName != WHATSAPP_PACKAGE) return
 
         val raw = NotificationExtractor.toRaw(sbn) ?: return
-        // Sin acción de respuesta (RemoteInput) no hay nada que inyectar.
-        if (!raw.hasReplyAction) return
-
         val actions = sbn.notification?.actions?.toList().orEmpty()
 
         // Cuando la notificación trae varios mensajes (p. ej. llegan varios
-        // seguidos), se responde a CADA mensaje distinto, una sola vez por
-        // mensaje. ReplyGuard evita que una misma notificación re-emitida o un
-        // eco de nuestra propia respuesta dispare respuestas duplicadas.
+        // seguidos), se extrae CADA mensaje distinto.
         val candidates: List<ParsedWhatsAppMessage> =
             if (raw.messages.isNotEmpty()) {
                 raw.messages.mapNotNull { (sender, body) ->
@@ -49,8 +45,19 @@ class WaliPetNotificationListener : NotificationListenerService() {
             } else {
                 listOfNotNull(WhatsAppMessageParser.parse(raw))
             }
+        if (candidates.isEmpty()) return
 
+        // Voz en off: leer en voz alta los mensajes nuevos, con la pantalla
+        // apagada o mientras usas otras apps (si el usuario lo activó).
+        if (serviceLocator.settingsRepository.voiceOverEnabled) {
+            voiceOver.speakNew(candidates)
+        }
+
+        // Auto-respuesta: solo si la notificación expone el botón Responder.
+        if (!raw.hasReplyAction) return
         for (parsed in candidates) {
+            // ReplyGuard evita responder dos veces al mismo mensaje y rompe los
+            // bucles con nuestra propia respuesta.
             if (ReplyGuard.shouldReply(parsed.sender, parsed.text)) {
                 scope.launch { replier.process(parsed, actions) }
             }

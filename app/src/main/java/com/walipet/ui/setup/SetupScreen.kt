@@ -21,6 +21,8 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -35,6 +37,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.walipet.R
+import com.walipet.di.ServiceLocator
 import com.walipet.service.SetupChecker
 import com.walipet.service.SetupStatus
 import com.walipet.ui.components.PixelCard
@@ -54,7 +57,9 @@ fun SetupScreen(
     onFinished: () -> Unit,
 ) {
     val context = LocalContext.current
+    val settings = remember { ServiceLocator.getInstance(context.applicationContext).settingsRepository }
     var status by remember { mutableStateOf(SetupChecker.status(context)) }
+    var voiceOver by remember { mutableStateOf(settings.voiceOverEnabled) }
     var refreshTick by remember { mutableIntStateOf(0) }
 
     // Re-sondeo automático: al volver de Ajustes el estado se actualiza solo.
@@ -112,6 +117,19 @@ fun SetupScreen(
             ok = status.batteryExempt,
             actionLabel = stringResource(R.string.setup_action_exempt),
             onAction = { SetupChecker.requestBatteryExemption(context) },
+        )
+
+        PixelSpacer(8.dp)
+
+        // Voz en off: leer los mensajes en voz alta.
+        Text(text = stringResource(R.string.setup_features_title), style = MaterialTheme.typography.titleMedium)
+        PixelSpacer(8.dp)
+        VoiceOverRow(
+            enabled = voiceOver,
+            onToggle = {
+                voiceOver = it
+                settings.voiceOverEnabled = it
+            },
         )
 
         PixelSpacer(8.dp)
@@ -217,6 +235,45 @@ private fun SetupRow(
                     Text(text = actionLabel, style = MaterialTheme.typography.labelMedium)
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun VoiceOverRow(
+    enabled: Boolean,
+    onToggle: (Boolean) -> Unit,
+) {
+    PixelCard(
+        modifier = Modifier.fillMaxWidth(),
+        borderColor = if (enabled) ArcadePrimary else MaterialTheme.colorScheme.outline,
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(R.string.setup_voice_title),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = if (enabled) ArcadePrimary else MaterialTheme.colorScheme.onSurface,
+                )
+                Text(
+                    text = stringResource(R.string.setup_voice_body),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Switch(
+                checked = enabled,
+                onCheckedChange = onToggle,
+                colors = SwitchDefaults.colors(
+                    checkedTrackColor = ArcadePrimary,
+                    checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+                    uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant,
+                ),
+            )
         }
     }
 }

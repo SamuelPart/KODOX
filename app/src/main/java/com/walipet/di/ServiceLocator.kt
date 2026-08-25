@@ -9,6 +9,7 @@ import com.walipet.data.repository.SettingsRepository
 import com.walipet.engine.time.Clock
 import com.walipet.service.AutomatedReplier
 import com.walipet.service.NotificationHelper
+import com.walipet.service.VoiceOver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -47,6 +48,9 @@ class ServiceLocator private constructor(context: Context) {
             clock = Clock.SYSTEM,
         )
     }
+
+    /** Voz en off: lee en voz alta los mensajes entrantes de WhatsApp. */
+    val voiceOver: VoiceOver by lazy { VoiceOver(appContext) }
 
     /** Siembra los datos iniciales (mascota + reglas de ejemplo) en primer uso. */
     private fun seedIfNeeded() {
