@@ -9,7 +9,6 @@ import com.walipet.data.repository.AutomationLogRepository
 import com.walipet.data.repository.PetRepository
 import com.walipet.data.repository.RuleRepository
 import com.walipet.engine.model.AutomationLog
-import com.walipet.engine.model.ChatType
 import com.walipet.engine.model.ParsedWhatsAppMessage
 import com.walipet.engine.model.Rule
 import com.walipet.engine.rule.RuleEngine

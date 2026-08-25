@@ -29,8 +29,7 @@ import kotlin.math.sin
  * sprite es una rejilla de 16×16 caracteres mapeada a colores, dibujada con
  * Canvas y animada (bote, parpadeo y efectos según el estado de ánimo).
  *
- * Los sprites están diseñados a mano en [Sprite.rows]; las longitudes de
- * fila se validan por test (ver PixelArtPetTest).
+ * Los sprites están diseñados a mano en [Sprite.rows] (16 columnas exactas).
  */
 @Composable
 fun PixelArtPet(
