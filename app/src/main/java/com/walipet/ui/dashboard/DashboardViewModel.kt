@@ -17,7 +17,6 @@ import com.walipet.engine.model.PetState
 import com.walipet.engine.pet.PetMoodResolver
 import com.walipet.engine.pet.StreakEngine
 import com.walipet.engine.time.Clock
-import com.walipet.engine.voice.VoiceOverPlanner
 import com.walipet.service.VoiceOverSpeaker
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -65,24 +64,7 @@ class DashboardViewModel(
     fun toggleVoiceOver() {
         val enabled = !settingsRepository.voiceOverEnabled
         settingsRepository.voiceOverEnabled = enabled
-        if (!enabled) {
-            voiceOverSpeaker.stop()
-        } else {
-            speakSentReplies()
-        }
-    }
-
-    /**
-     * Lee en voz alta los mensajes **enviados** (respuestas automáticas):
-     * texto exacto si son de la última hora; el resto, «N mensajes de M chats».
-     */
-    fun speakSentReplies() {
-        if (!settingsRepository.voiceOverEnabled) return
-        val lines = VoiceOverPlanner.planSentReplies(
-            logs = uiState.value.recentLogs,
-            nowEpochMilli = System.currentTimeMillis(),
-        )
-        voiceOverSpeaker.speak(lines, dedupKey = "sent-replies")
+        if (!enabled) voiceOverSpeaker.stop()
     }
 
     companion object {

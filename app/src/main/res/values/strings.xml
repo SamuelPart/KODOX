@@ -21,7 +21,7 @@
     <string name="dashboard_recent">Actividad reciente</string>
     <string name="dashboard_empty_activity">Tu WaliPet está descansando…\nActiva reglas y recibe mensajes para empezar.</string>
     <string name="dashboard_new_rule">Nueva regla</string>
-    <string name="voice_over_on">Voz en off activada. Lee los mensajes de la última hora al pie de la letra.</string>
+    <string name="voice_over_on">Voz en off activada. Lee lo que te envían (última hora al pie de la letra).</string>
     <string name="voice_over_off">Voz en off desactivada</string>
     <string name="voice_over_summary">%1$d mensajes de %2$d chats</string>
     <string name="mood_happy">¡Feliz! La racha está en llamas 🔥</string>

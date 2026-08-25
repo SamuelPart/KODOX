@@ -86,8 +86,8 @@ object VoiceOverPlanner {
     )
 
     /**
-     * Voz en off de los **mensajes enviados** por WaliPet (respuestas
-     * automáticas): última hora al pie de la letra; el resto, resumido.
+     * Plan a partir de logs de automatización. La voz en off de la app
+     * **no** lo usa: las respuestas automáticas no se leen.
      */
     fun planSentReplies(
         logs: List<AutomationLog>,

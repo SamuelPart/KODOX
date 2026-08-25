@@ -49,7 +49,6 @@ class ServiceLocator private constructor(context: Context) {
             ruleRepository = ruleRepository,
             logRepository = automationLogRepository,
             notificationHelper = notificationHelper,
-            voiceOverSpeaker = voiceOverSpeaker,
             clock = Clock.SYSTEM,
         )
     }

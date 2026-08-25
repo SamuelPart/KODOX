@@ -29,7 +29,7 @@ diaria y evoluciona a través de 4 etapas pixel art.
 - Curva de niveles progresiva: `100 × nivel` XP para subir (N1→2: 100, N2→3: 200, …).
 - Racha diaria: automatizar al menos una vez al día mantiene/crece la racha.
 - Estados de ánimo derivados de la actividad reciente (energía y felicidad 0-100).
-- **Voz en off** (TTS local): lee el texto exacto de los mensajes de chat de la **última hora**; el resto lo resume como «N mensajes de M chats». Ignora avisos de WhatsApp que no son de un chat (llamadas, Web, copias de seguridad, estados…).
+- **Voz en off** (TTS local): lee el texto exacto de los mensajes **que te envían** en la **última hora**; el resto lo resume como «N mensajes de M chats». No lee las respuestas automáticas de WaliPet ni avisos de WhatsApp que no son de un chat (llamadas, Web, copias de seguridad, estados…).
 
 ---
 
