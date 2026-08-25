@@ -4,9 +4,8 @@ import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import androidx.core.app.NotificationManagerCompat
 import com.walipet.di.ServiceLocator
-import com.walipet.engine.voice.VoiceOverPlanner
-import com.walipet.engine.voice.WhatsAppNotificationClass
-import com.walipet.engine.voice.WhatsAppNotificationClassifier
+import com.walipet.engine.model.ParsedWhatsAppMessage
+import com.walipet.engine.rule.WhatsAppMessageParser
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -26,31 +25,44 @@ import kotlinx.coroutines.launch
 class WaliPetNotificationListener : NotificationListenerService() {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-    private val locator: ServiceLocator by lazy {
-        ServiceLocator.getInstance(applicationContext)
-    }
-    private val replier: AutomatedReplier by lazy { locator.automatedReplier }
+
+    private val serviceLocator by lazy { ServiceLocator.getInstance(applicationContext) }
+    private val replier: AutomatedReplier by lazy { serviceLocator.automatedReplier }
+    private val voiceOver: VoiceOver by lazy { serviceLocator.voiceOver }
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
         if (sbn.packageName !in WHATSAPP_PACKAGES) return
 
         val raw = NotificationExtractor.toRaw(sbn) ?: return
-        val classified = WhatsAppNotificationClassifier.classify(raw)
-
-        // Avisos que no son de chat: silencio total.
-        if (classified is WhatsAppNotificationClass.Ignored) return
-
-        val now = System.currentTimeMillis()
-        val lines = VoiceOverPlanner.plan(listOf(classified), nowEpochMilli = now)
-        locator.voiceOverSpeaker.speak(lines, dedupKey = sbn.key)
-
-        // Auto-reply solo sobre mensajes de chat con acción de respuesta.
-        if (classified !is WhatsAppNotificationClass.ChatMessages) return
-        val parsed = com.walipet.engine.rule.WhatsAppMessageParser.parse(raw) ?: return
-        if (!parsed.hasReplyAction) return
-
         val actions = sbn.notification?.actions?.toList().orEmpty()
-        scope.launch { replier.process(parsed, actions) }
+
+        // Cuando la notificación trae varios mensajes (p. ej. llegan varios
+        // seguidos), se extrae CADA mensaje distinto.
+        val candidates: List<ParsedWhatsAppMessage> =
+            if (raw.messages.isNotEmpty()) {
+                raw.messages.mapNotNull { (sender, body) ->
+                    WhatsAppMessageParser.parseMessage(raw, sender, body)
+                }
+            } else {
+                listOfNotNull(WhatsAppMessageParser.parse(raw))
+            }
+        if (candidates.isEmpty()) return
+
+        // Voz en off: leer en voz alta los mensajes nuevos, con la pantalla
+        // apagada o mientras usas otras apps (si el usuario lo activó).
+        if (serviceLocator.settingsRepository.voiceOverEnabled) {
+            voiceOver.speakNew(candidates)
+        }
+
+        // Auto-respuesta: solo si la notificación expone el botón Responder.
+        if (!raw.hasReplyAction) return
+        for (parsed in candidates) {
+            // ReplyGuard evita responder dos veces al mismo mensaje y rompe los
+            // bucles con nuestra propia respuesta.
+            if (ReplyGuard.shouldReply(parsed.sender, parsed.text)) {
+                scope.launch { replier.process(parsed, actions) }
+            }
+        }
     }
 
     override fun onListenerConnected() {

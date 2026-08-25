@@ -13,7 +13,18 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Bolt
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Egg
+import androidx.compose.material.icons.filled.EmojiEvents
+import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.RocketLaunch
+import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.SmartToy
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -22,10 +33,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.walipet.R
@@ -37,6 +50,7 @@ import com.walipet.ui.components.PixelCard
 import com.walipet.ui.components.PixelProgressBar
 import com.walipet.ui.components.PixelSpacer
 import com.walipet.ui.theme.ArcadeOnSurfaceDim
+import com.walipet.ui.theme.ArcadeOutline
 import com.walipet.ui.theme.ArcadePrimary
 import com.walipet.ui.theme.ArcadeSecondary
 import com.walipet.ui.theme.ArcadeStreak
@@ -131,11 +145,21 @@ private fun StageCard(
                 modifier = Modifier.size(64.dp),
             )
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(
-                    text = stageName(stage) + if (isCurrent) "  ●" else "",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = if (isCurrent) ArcadeStreak else MaterialTheme.colorScheme.onSurface,
-                )
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(
+                        text = stageName(stage),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = if (isCurrent) ArcadeStreak else MaterialTheme.colorScheme.onSurface,
+                    )
+                    if (isCurrent) {
+                        Icon(
+                            imageVector = Icons.Filled.CheckCircle,
+                            contentDescription = stringResource(R.string.stage_current),
+                            tint = ArcadeStreak,
+                            modifier = Modifier.size(16.dp),
+                        )
+                    }
+                }
                 Text(
                     text = stageDesc(stage),
                     style = MaterialTheme.typography.bodyMedium,
@@ -176,10 +200,24 @@ private fun AchievementCard(
     Column(
         modifier = modifier
             .background(ArcadeSurfaceVariant, MaterialTheme.shapes.medium)
-            .padding(12.dp),
+            .padding(12.dp)
+            .then(if (!unlocked) Modifier.alpha(0.45f) else Modifier),
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        Text(text = achievement.icon, fontSize = 22.sp)
+        Box(
+            modifier = Modifier
+                .size(38.dp)
+                .clip(MaterialTheme.shapes.small)
+                .background(if (unlocked) ArcadePrimary else ArcadeOutline),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                imageVector = achievementIcon(achievement.icon),
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier.size(22.dp),
+            )
+        }
         Text(
             text = achievementTitle(achievement),
             style = MaterialTheme.typography.labelLarge,
@@ -193,7 +231,7 @@ private fun AchievementCard(
             maxLines = 2,
             textAlign = TextAlign.Start,
         )
-    }.let { if (!unlocked) it.alpha(0.45f) else it }
+    }
 }
 
 @Composable
@@ -249,3 +287,19 @@ private fun achievementDesc(a: Achievement): String = stringResource(
         else -> R.string.app_name
     },
 )
+
+/** Traduce la clave de ícono de un logro a un ImageVector (material, sin emojis). */
+private fun achievementIcon(key: String): ImageVector = when (key) {
+    "robot" -> Icons.Filled.SmartToy
+    "bolt" -> Icons.Filled.Bolt
+    "hundred" -> Icons.Filled.Bolt
+    "rocket" -> Icons.Filled.RocketLaunch
+    "flame" -> Icons.Filled.LocalFireDepartment
+    "trophy" -> Icons.Filled.EmojiEvents
+    "egg" -> Icons.Filled.Egg
+    "shield" -> Icons.Filled.Shield
+    "star" -> Icons.Filled.Star
+    "sparkle" -> Icons.Filled.AutoAwesome
+    "timer" -> Icons.Filled.Timer
+    else -> Icons.Filled.AutoAwesome
+}

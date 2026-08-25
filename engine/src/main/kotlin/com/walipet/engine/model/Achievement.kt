@@ -35,6 +35,7 @@ data class AchievementContext(
  */
 data class Achievement(
     val id: String,
+    /** Clave estable del ícono; la UI la mapea a un ImageVector (sin emojis). */
     val icon: String,
     val condition: (AchievementContext) -> Boolean,
 )

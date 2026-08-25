@@ -30,7 +30,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.walipet.R
 import com.walipet.engine.model.ChatScope
@@ -246,7 +245,6 @@ private fun EditorField(
                     text = placeholder,
                     style = MaterialTheme.typography.bodyMedium,
                     color = ArcadeOnSurfaceDim,
-                    fontFamily = FontFamily.Monospace,
                 )
             },
             textStyle = MaterialTheme.typography.bodyLarge,

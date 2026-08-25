@@ -8,6 +8,7 @@
     <string name="nav_rules">Reglas</string>
     <string name="nav_codex">Codex</string>
     <string name="nav_stats">Stats</string>
+    <string name="nav_setup">Ajustes</string>
 
     <!-- Dashboard -->
     <string name="dashboard_title">WaliPet</string>
@@ -21,10 +22,7 @@
     <string name="dashboard_recent">Actividad reciente</string>
     <string name="dashboard_empty_activity">Tu WaliPet está descansando…\nActiva reglas y recibe mensajes para empezar.</string>
     <string name="dashboard_new_rule">Nueva regla</string>
-    <string name="voice_over_on">Voz en off activada. Lee lo que te envían (última hora al pie de la letra).</string>
-    <string name="voice_over_off">Voz en off desactivada</string>
-    <string name="voice_over_summary">%1$d mensajes de %2$d chats</string>
-    <string name="mood_happy">¡Feliz! La racha está en llamas 🔥</string>
+    <string name="mood_happy">¡Feliz! La racha está en llamas</string>
     <string name="mood_content">Tranquilo y listo para responder</string>
     <string name="mood_sad">Racha en peligro: hoy aún puedes salvarla</string>
     <string name="mood_sleeping">Durmiendo… necesita actividad</string>
@@ -126,11 +124,11 @@
 
     <!-- Onboarding -->
     <string name="onb_welcome_title">Bienvenido a WaliPet</string>
-    <string name="onb_welcome_body">Tu mascota pixel art responde WhatsApp por ti mientras duermes.\nGana XP, sube de nivel y evoluciona con cada automatización.</string>
+    <string name="onb_welcome_body">Tu mascota responde WhatsApp por ti mientras duermes.\nGana XP, sube de nivel y evoluciona con cada automatización.</string>
     <string name="onb_listener_title">Acceso a notificaciones</string>
     <string name="onb_listener_body">Para leer los mensajes de WhatsApp en segundo plano (todo se procesa localmente en tu dispositivo), concede a WaliPet el acceso a notificaciones.</string>
     <string name="onb_listener_action">Abrir ajustes</string>
-    <string name="onb_listener_done">Permiso concedido ✓</string>
+    <string name="onb_listener_done">Permiso concedido</string>
     <string name="onb_notifications_title">Notificaciones de la app</string>
     <string name="onb_notifications_body">Las necesitamos para avisarte cuando tu WaliPet responda y gane XP.</string>
     <string name="onb_notifications_action">Permitir notificaciones</string>
@@ -144,10 +142,29 @@
     <string name="onb_next">Siguiente</string>
     <string name="onb_back">Atrás</string>
 
+    <!-- Estado del sistema / Ajustes -->
+    <string name="setup_title">Estado del sistema</string>
+    <string name="setup_subtitle">Revisamos que todo esté listo para que WaliPet responda solo. Si falta algo, tócalo y se abre el ajuste correspondiente.</string>
+    <string name="setup_listener_title">Acceso a notificaciones</string>
+    <string name="setup_listener_body">Permite a WaliPet leer los mensajes de WhatsApp en segundo plano. Sin esto no responde nada.</string>
+    <string name="setup_notifications_title">Notificaciones de la app</string>
+    <string name="setup_notifications_body">Para avisarte cuando tu WaliPet responda y gane XP.</string>
+    <string name="setup_battery_title">Ahorro de batería</string>
+    <string name="setup_battery_body">Eximir a WaliPet del ahorro agresivo hace que responda más rápido, incluso con la pantalla apagada.</string>
+    <string name="setup_action_open">Abrir ajustes</string>
+    <string name="setup_action_exempt">Eximir batería</string>
+    <string name="setup_done_title">¡Todo listo!</string>
+    <string name="setup_done_body">WaliPet está preparado para responder automáticamente. Crea reglas en la pestaña “Reglas”.</string>
+    <string name="setup_incomplete">Faltan permisos por activar. Tócalos para abrir el ajuste y vuelve automáticamente.</string>
+    <string name="setup_finish">Listo</string>
+    <string name="setup_features_title">Funciones</string>
+    <string name="setup_voice_title">Leer en voz alta</string>
+    <string name="setup_voice_body">WaliPet leerá los mensajes de WhatsApp en voz alta, incluso con la pantalla apagada o mientras usas otras apps.</string>
+
     <!-- Notificaciones del sistema -->
     <string name="notif_reply_title">WaliPet respondió</string>
     <string name="notif_reply_text">Regla “%1$s” · +%2$d XP</string>
-    <string name="notif_levelup_text">¡Subiste al nivel %1$d! 🎉</string>
+    <string name="notif_levelup_text">¡Subiste al nivel %1$d!</string>
     <string name="notif_listener_disabled_title">WaliPet está dormido</string>
     <string name="notif_listener_disabled_text">El acceso a notificaciones está desactivado. Toca para reactivarlo.</string>
     <string name="channel_automations_name">Automatizaciones</string>

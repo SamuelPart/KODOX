@@ -61,6 +61,9 @@ class AutomatedReplier(
                 if (!sendReply(replyAction, match.rule.response)) {
                     return Outcome.SendFailed(match.rule)
                 }
+                // Registrar la respuesta enviada: WhatsApp la re-emitirá dentro de
+                // la notificación y ReplyGuard debe ignorarla para no repetirse.
+                ReplyGuard.markSent(match.rule.response)
 
                 val now = clock.now()
                 val today = clock.today()
