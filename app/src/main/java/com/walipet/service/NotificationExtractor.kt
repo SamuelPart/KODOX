@@ -35,10 +35,12 @@ object NotificationExtractor {
         }
 
         // Mensajes del Wearable.Extender (relojes) — otra fuente fiable.
+        // Cada entrada es un texto plano (sin remitente estructurado), así que
+        // se mapea como (remitente = null, texto = mensaje).
         try {
             val wearable = NotificationCompat.WearableExtender(notification)
             for (message in wearable.messages) {
-                messages += message.sender to message.text
+                messages += null to message
             }
         } catch (_: Throwable) {
             // Sin wearable: no pasa nada.

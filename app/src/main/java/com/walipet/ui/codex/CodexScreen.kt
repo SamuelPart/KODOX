@@ -175,7 +175,8 @@ private fun AchievementCard(
     Column(
         modifier = modifier
             .background(ArcadeSurfaceVariant, MaterialTheme.shapes.medium)
-            .padding(12.dp),
+            .padding(12.dp)
+            .then(if (!unlocked) Modifier.alpha(0.45f) else Modifier),
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         Text(text = achievement.icon, fontSize = 22.sp)
@@ -192,7 +193,7 @@ private fun AchievementCard(
             maxLines = 2,
             textAlign = TextAlign.Start,
         )
-    }.let { if (!unlocked) it.alpha(0.45f) else it }
+    }
 }
 
 @Composable
