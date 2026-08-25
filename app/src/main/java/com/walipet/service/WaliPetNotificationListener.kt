@@ -39,8 +39,12 @@ class WaliPetNotificationListener : NotificationListenerService() {
         if (classified is WhatsAppNotificationClass.Ignored) return
 
         if (serviceLocator.settingsRepository.voiceOverEnabled) {
-            val lines = VoiceOverPlanner.plan(listOf(classified), nowEpochMilli = System.currentTimeMillis())
-            voiceOver.speakLines(lines, dedupKey = sbn.key)
+            val lines = VoiceOverPlanner.planLatestIncoming(
+                classified = classified,
+                nowEpochMilli = System.currentTimeMillis(),
+                isOwnReply = ReplyGuard::wasSent,
+            )
+            voiceOver.speakLines(lines)
         }
 
         if (classified !is WhatsAppNotificationClass.ChatMessages) return

@@ -155,6 +155,7 @@ object WhatsAppNotificationClassifier {
             if (bodyText.isEmpty()) return@mapIndexedNotNull null
             val senderName = sender?.toString()?.trim().orEmpty()
                 .ifEmpty { title.ifEmpty { "WhatsApp" } }
+            if (VoiceOverPlanner.isSelfSender(senderName)) return@mapIndexedNotNull null
             val timestamp = raw.messageTimestamps.getOrNull(index)
                 ?.takeIf { it > 0L }
                 ?: raw.postedAtEpochMilli

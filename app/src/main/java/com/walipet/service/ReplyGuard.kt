@@ -21,6 +21,7 @@ import java.util.LinkedHashMap
 object ReplyGuard {
 
     private const val WINDOW_MS = 60_000L
+    private const val SENT_WINDOW_MS = 60L * 60L * 1000L
 
     private data class Sig(val sender: String, val text: String)
 
@@ -51,6 +52,13 @@ object ReplyGuard {
         return true
     }
 
+    /** `true` si este texto es una respuesta que nosotros acabamos de enviar. */
+    @Synchronized
+    fun wasSent(replyText: String): Boolean {
+        prune(System.currentTimeMillis())
+        return sentTexts.containsKey(replyText.trim())
+    }
+
     /** Registra una respuesta que acabamos de enviar para no responderle de nuevo. */
     @Synchronized
     fun markSent(replyText: String) {
@@ -64,8 +72,7 @@ object ReplyGuard {
     }
 
     private fun prune(now: Long) {
-        val cutoff = now - WINDOW_MS
-        replied.entries.removeAll { it.value < cutoff }
-        sentTexts.entries.removeAll { it.value < cutoff }
+        replied.entries.removeAll { it.value < now - WINDOW_MS }
+        sentTexts.entries.removeAll { it.value < now - SENT_WINDOW_MS }
     }
 }

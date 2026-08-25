@@ -9,21 +9,22 @@ import com.walipet.engine.voice.VoiceLine
 import com.walipet.engine.voice.VoiceOverPlanner
 import java.util.LinkedHashMap
 import java.util.Locale
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
- * Voz en off: lee **solo los mensajes que te envían** (nunca la respuesta
- * automática de WaliPet). Última hora al pie de la letra; el resto,
- * «N mensajes de M chats».
+ * Lee **un** mensaje a la vez: solo lo que manda la otra persona.
+ * No repite, no clona el historial, no lee la respuesta automática.
  */
 class VoiceOver(context: Context) {
 
     private val appContext = context.applicationContext
     private val mainHandler = Handler(Looper.getMainLooper())
+    private val utteranceSeq = AtomicInteger(0)
 
     private var tts: TextToSpeech? = null
     @Volatile private var ready = false
     private val pending = ArrayDeque<String>()
-    private val spoken = LinkedHashMap<String, Long>(32, 0.75f, false)
+    private val spoken = LinkedHashMap<String, Long>(64, 0.75f, false)
 
     init {
         mainHandler.post {
@@ -41,37 +42,37 @@ class VoiceOver(context: Context) {
                     }
                     ready = true
                     synchronized(pending) {
-                        while (pending.isNotEmpty()) flush(listOf(pending.removeFirst()))
+                        while (pending.isNotEmpty()) speakNow(pending.removeFirst())
                     }
                 }
             }
         }
     }
 
-    /** Pronuncia las líneas ya planificadas (texto exacto o resumen). */
-    fun speakLines(lines: List<VoiceLine>, dedupKey: String? = null) {
+    fun speakLines(lines: List<VoiceLine>) {
         if (lines.isEmpty()) return
-        val texts = lines.map { VoiceOverPlanner.speechText(it) }.filter { it.isNotBlank() }
-        if (texts.isEmpty()) return
-
         val now = System.currentTimeMillis()
         prune(now)
-        val fingerprint = dedupKey?.let { "$it|${texts.joinToString("|")}" }
-        if (fingerprint != null) {
-            if (spoken.containsKey(fingerprint)) return
-            spoken[fingerprint] = now
+
+        val fresh = lines.map { VoiceOverPlanner.speechText(it).trim() }.filter { text ->
+            if (text.isEmpty()) return@filter false
+            if (ReplyGuard.wasSent(text)) return@filter false
+            val key = text.lowercase()
+            synchronized(spoken) {
+                if (spoken.containsKey(key)) return@filter false
+                spoken[key] = now
+                true
+            }
         }
+        if (fresh.isEmpty()) return
 
         if (!ready) {
-            synchronized(pending) { pending.addAll(texts) }
+            synchronized(pending) { pending.addAll(fresh) }
             return
         }
-        mainHandler.post { flush(texts) }
-    }
-
-    fun markSpoken(dedupKey: String, lines: List<VoiceLine>) {
-        val texts = lines.map { VoiceOverPlanner.speechText(it) }
-        spoken["$dedupKey|${texts.joinToString("|")}"] = System.currentTimeMillis()
+        mainHandler.post {
+            fresh.forEach { speakNow(it) }
+        }
     }
 
     fun stop() {
@@ -79,20 +80,20 @@ class VoiceOver(context: Context) {
         mainHandler.post { runCatching { tts?.stop() } }
     }
 
-    private fun flush(texts: List<String>) {
+    private fun speakNow(text: String) {
         val t = tts ?: return
-        texts.forEachIndexed { index, text ->
-            val mode = if (index == 0) TextToSpeech.QUEUE_ADD else TextToSpeech.QUEUE_ADD
-            t.speak(text, mode, null, "walipet-voz-$index")
-        }
+        val id = "walipet-voz-${utteranceSeq.incrementAndGet()}"
+        t.speak(text, TextToSpeech.QUEUE_ADD, null, id)
     }
 
     private fun prune(now: Long) {
         val cutoff = now - WINDOW_MS
-        spoken.entries.removeAll { it.value < cutoff }
+        synchronized(spoken) {
+            spoken.entries.removeAll { it.value < cutoff }
+        }
     }
 
     private companion object {
-        const val WINDOW_MS = 60_000L
+        const val WINDOW_MS = 60L * 60L * 1000L
     }
 }

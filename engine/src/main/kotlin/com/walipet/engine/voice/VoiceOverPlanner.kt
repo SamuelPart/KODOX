@@ -75,6 +75,58 @@ object VoiceOverPlanner {
         return lines
     }
 
+    /**
+     * Una sola notificación del **chat del momento**:
+     *  - si el último mensaje lo mandó la otra persona y es de la última hora →
+     *    se lee ese texto, una vez, sin el historial;
+     *  - si es más viejo o es un resumen agrupado → «N mensajes de M chats»;
+     *  - si el último es nuestra respuesta automática → silencio.
+     */
+    fun planLatestIncoming(
+        classified: WhatsAppNotificationClass,
+        nowEpochMilli: Long,
+        isOwnReply: (String) -> Boolean = { false },
+        lastHourMillis: Long = LAST_HOUR_MILLIS,
+    ): List<VoiceLine> {
+        return when (classified) {
+            WhatsAppNotificationClass.Ignored -> emptyList()
+            is WhatsAppNotificationClass.Summary -> listOf(
+                VoiceLine.ChatSummary(classified.messageCount, classified.chatCount),
+            )
+            is WhatsAppNotificationClass.ChatMessages -> {
+                val incoming = classified.messages.filter { line ->
+                    val text = line.text.trim()
+                    text.isNotEmpty() &&
+                        !isOwnReply(text) &&
+                        !isSelfSender(line.sender)
+                }
+                if (incoming.isEmpty()) return emptyList()
+
+                val lastRaw = classified.messages.lastOrNull { it.text.isNotBlank() }
+                if (lastRaw != null &&
+                    (isOwnReply(lastRaw.text.trim()) || isSelfSender(lastRaw.sender))
+                ) {
+                    return emptyList()
+                }
+
+                val newest = incoming.last()
+                val recent = newest.postedAtEpochMilli == 0L ||
+                    newest.postedAtEpochMilli >= nowEpochMilli - lastHourMillis
+                if (recent) {
+                    listOf(VoiceLine.ExactMessage(sender = newest.sender, text = newest.text.trim()))
+                } else {
+                    val chats = incoming.map { it.chatKey.ifBlank { it.sender } }.toSet().size
+                    listOf(VoiceLine.ChatSummary(incoming.size, chats.coerceAtLeast(1)))
+                }
+            }
+        }
+    }
+
+    fun isSelfSender(sender: String): Boolean {
+        val n = sender.trim().lowercase()
+        return n == "tú" || n == "tu" || n == "you" || n == "yo" || n == "usted" || n == "me"
+    }
+
     fun planFromRaw(
         rawItems: List<NotificationRawData>,
         nowEpochMilli: Long,

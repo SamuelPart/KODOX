@@ -31,7 +31,9 @@ object NotificationExtractor {
         try {
             val style = NotificationCompat.MessagingStyle.extractMessagingStyleFromNotification(notification)
             if (style != null) {
+                val me = style.user
                 for (message in style.messages) {
+                    if (isSelfMessage(message, me)) continue
                     messages += message.sender to message.text
                     timestamps += message.timestamp
                 }
@@ -67,5 +69,19 @@ object NotificationExtractor {
             bigText = bigText,
             subText = subText,
         )
+    }
+
+    /** WhatsApp incluye nuestros propios envíos en MessagingStyle: no se leen. */
+    private fun isSelfMessage(
+        message: NotificationCompat.MessagingStyle.Message,
+        me: androidx.core.app.Person?,
+    ): Boolean {
+        val person = message.person
+        if (person != null && me != null) {
+            if (person.key != null && person.key == me.key) return true
+            if (person.name != null && person.name == me.name) return true
+        }
+        val n = message.sender?.toString()?.trim()?.lowercase().orEmpty()
+        return n == "tú" || n == "tu" || n == "you" || n == "yo" || n == "usted" || n == "me"
     }
 }

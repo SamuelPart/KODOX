@@ -160,6 +160,43 @@ class VoiceOverPlannerTest {
     }
 
     @Test
+    fun `planLatestIncoming solo lee el ultimo mensaje del chat`() {
+        val classified = WhatsAppNotificationClass.ChatMessages(
+            listOf(
+                ChatLine("María", "hola", "María", now - 20_000),
+                ChatLine("María", "¿sigues ahí?", "María", now - 1_000),
+            ),
+        )
+        val lines = VoiceOverPlanner.planLatestIncoming(classified, nowEpochMilli = now)
+        assertEquals("¿sigues ahí?", VoiceOverPlanner.speechText(lines.single()))
+    }
+
+    @Test
+    fun `planLatestIncoming no lee la respuesta automatica`() {
+        val classified = WhatsAppNotificationClass.ChatMessages(
+            listOf(
+                ChatLine("María", "precio", "María", now - 2_000),
+                ChatLine("Tú", "Hola, te enviaremos la información en un momento.", "María", now),
+            ),
+        )
+        val lines = VoiceOverPlanner.planLatestIncoming(
+            classified,
+            nowEpochMilli = now,
+            isOwnReply = { it.startsWith("Hola, te enviaremos") },
+        )
+        assertTrue(lines.isEmpty())
+    }
+
+    @Test
+    fun `planLatestIncoming viejo se resume`() {
+        val classified = WhatsAppNotificationClass.ChatMessages(
+            listOf(ChatLine("Luis", "ayer te escribí", "Luis", now - hour - 5_000)),
+        )
+        val lines = VoiceOverPlanner.planLatestIncoming(classified, nowEpochMilli = now)
+        assertEquals("1 mensaje de 1 chat", VoiceOverPlanner.speechText(lines.single()))
+    }
+
+    @Test
     fun `mas de MAX_EXACT_LINES se resume el resto`() {
         val items = (1..15).map { i ->
             chat("msg $i", sender = "S$i", postedAt = now - 1_000)
