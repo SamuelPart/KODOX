@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">WaliPet</string>
+    <string name="notification_listener_label">Acceso a notificaciones de WaliPet</string>
+
+    <!-- Navegación -->
+    <string name="nav_habitat">Hábitat</string>
+    <string name="nav_rules">Reglas</string>
+    <string name="nav_codex">Codex</string>
+    <string name="nav_stats">Stats</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_title">WaliPet</string>
+    <string name="dashboard_level">NIVEL %1$d</string>
+    <string name="dashboard_xp">%1$d / %2$d XP</string>
+    <string name="dashboard_streak_days">%1$d días de racha</string>
+    <string name="dashboard_streak_day">1 día de racha</string>
+    <string name="dashboard_streak_none">Sin racha todavía</string>
+    <string name="dashboard_energy">Energía</string>
+    <string name="dashboard_happiness">Felicidad</string>
+    <string name="dashboard_recent">Actividad reciente</string>
+    <string name="dashboard_empty_activity">Tu WaliPet está descansando…\nActiva reglas y recibe mensajes para empezar.</string>
+    <string name="dashboard_new_rule">Nueva regla</string>
+    <string name="mood_happy">¡Feliz! La racha está en llamas 🔥</string>
+    <string name="mood_content">Tranquilo y listo para responder</string>
+    <string name="mood_sad">Racha en peligro: hoy aún puedes salvarla</string>
+    <string name="mood_sleeping">Durmiendo… necesita actividad</string>
+
+    <!-- Reglas -->
+    <string name="rules_title">Reglas lógicas</string>
+    <string name="rules_empty_title">Aún no hay reglas</string>
+    <string name="rules_empty_body">Crea tu primera regla:\n“Si el mensaje contiene X → responde Y”.</string>
+    <string name="rules_new">Nueva regla</string>
+    <string name="rule_state_on">Activa</string>
+    <string name="rule_state_off">Inactiva</string>
+    <string name="rule_scope_all">Todos los chats</string>
+    <string name="rule_scope_private">Solo privados</string>
+    <string name="rule_scope_groups">Solo grupos</string>
+    <string name="rule_times_triggered">%1$d disparos</string>
+
+    <!-- Editor de reglas -->
+    <string name="editor_title_new">Nueva regla</string>
+    <string name="editor_title_edit">Editar regla</string>
+    <string name="editor_name">Nombre de la regla</string>
+    <string name="editor_name_hint">Ej. Respuesta de precio</string>
+    <string name="editor_trigger">Disparador</string>
+    <string name="editor_trigger_hint">Ej. precio</string>
+    <string name="editor_response">Respuesta automática</string>
+    <string name="editor_response_hint">Ej. Hola, te enviaremos la información en un momento.</string>
+    <string name="editor_mode">Modo de coincidencia</string>
+    <string name="mode_exact">Exacta</string>
+    <string name="mode_contains">Contiene</string>
+    <string name="mode_starts_with">Empieza con</string>
+    <string name="mode_regex">Regex</string>
+    <string name="editor_scope">Ámbito de chats</string>
+    <string name="editor_case_sensitive">Distinguir mayúsculas</string>
+    <string name="editor_save">Guardar regla</string>
+    <string name="editor_delete">Eliminar regla</string>
+    <string name="editor_error_name">Ponle un nombre a la regla</string>
+    <string name="editor_error_trigger">Escribe un disparador</string>
+    <string name="editor_error_response">Escribe una respuesta</string>
+    <string name="editor_error_regex">La expresión regular no es válida</string>
+
+    <!-- Codex -->
+    <string name="codex_title">Codex</string>
+    <string name="codex_evolution_title">Línea de evolución</string>
+    <string name="codex_achievements_title">Logros</string>
+    <string name="codex_progress">%1$d / %2$d desbloqueados</string>
+    <string name="stage_egg_name">Huevo digital</string>
+    <string name="stage_egg_desc">Niveles 1–2 · Todo comienza con un pequeño byte.</string>
+    <string name="stage_baby_name">Cría</string>
+    <string name="stage_baby_desc">Niveles 3–5 · Abre los ojos al mundo de las respuestas.</string>
+    <string name="stage_young_name">Mascota joven</string>
+    <string name="stage_young_desc">Niveles 6–9 · Ágil y llena de energía.</string>
+    <string name="stage_epic_name">Mascota épica</string>
+    <string name="stage_epic_desc">Niveles 10+ · Leyenda de la automatización.</string>
+    <string name="stage_locked">Bloqueada · nivel %1$d</string>
+    <string name="stage_current">Etapa actual</string>
+    <string name="achievement_unlocked">Desbloqueado</string>
+    <string name="achievement_locked">Bloqueado</string>
+
+    <!-- Logros -->
+    <string name="ach_first_reply_title">Primer byte</string>
+    <string name="ach_first_reply_desc">Envía tu primera respuesta automática.</string>
+    <string name="ach_replies_10_title">Ritmo arrancado</string>
+    <string name="ach_replies_10_desc">10 respuestas automáticas enviadas.</string>
+    <string name="ach_replies_100_title">Centenaria</string>
+    <string name="ach_replies_100_desc">100 respuestas automáticas enviadas.</string>
+    <string name="ach_replies_500_title">Máquina imparable</string>
+    <string name="ach_replies_500_desc">500 respuestas automáticas enviadas.</string>
+    <string name="ach_streak_3_title">3 días en llamas</string>
+    <string name="ach_streak_3_desc">Mantén 3 días de racha.</string>
+    <string name="ach_streak_7_title">Semana perfecta</string>
+    <string name="ach_streak_7_desc">Mantén 7 días de racha.</string>
+    <string name="ach_streak_30_title">Mes legendario</string>
+    <string name="ach_streak_30_desc">Mantén 30 días de racha.</string>
+    <string name="ach_level_3_title">¡Eclosión!</string>
+    <string name="ach_level_3_desc">Alcanza el nivel 3.</string>
+    <string name="ach_level_6_title">Adolescencia digital</string>
+    <string name="ach_level_6_desc">Alcanza el nivel 6.</string>
+    <string name="ach_level_10_title">Épico</string>
+    <string name="ach_level_10_desc">Alcanza el nivel 10.</string>
+    <string name="ach_xp_1000_title">Rayo de XP</string>
+    <string name="ach_xp_1000_desc">Acumula 1000 XP.</string>
+    <string name="ach_hour_saved_title">Hora regalada</string>
+    <string name="ach_hour_saved_desc">Ahorra 1 hora de escritura manual.</string>
+
+    <!-- Stats -->
+    <string name="stats_title">Estadísticas</string>
+    <string name="stats_today">Hoy</string>
+    <string name="stats_week">7 días</string>
+    <string name="stats_month">Este mes</string>
+    <string name="stats_total">Totales</string>
+    <string name="stats_responses">respuestas</string>
+    <string name="stats_xp_total">XP total</string>
+    <string name="stats_time_saved">Tiempo ahorrado</string>
+    <string name="stats_active_rules">Reglas activas</string>
+    <string name="stats_chart_title">Últimos 7 días</string>
+    <string name="stats_feed_title">Feed de actividad</string>
+    <string name="stats_feed_empty">Sin actividad todavía.</string>
+    <string name="stats_feed_row">“%1$s” · %2$s → “%3$s”</string>
+    <string name="stats_xp_gained">+%1$d XP</string>
+
+    <!-- Onboarding -->
+    <string name="onb_welcome_title">Bienvenido a WaliPet</string>
+    <string name="onb_welcome_body">Tu mascota pixel art responde WhatsApp por ti mientras duermes.\nGana XP, sube de nivel y evoluciona con cada automatización.</string>
+    <string name="onb_listener_title">Acceso a notificaciones</string>
+    <string name="onb_listener_body">Para leer los mensajes de WhatsApp en segundo plano (todo se procesa localmente en tu dispositivo), concede a WaliPet el acceso a notificaciones.</string>
+    <string name="onb_listener_action">Abrir ajustes</string>
+    <string name="onb_listener_done">Permiso concedido ✓</string>
+    <string name="onb_notifications_title">Notificaciones de la app</string>
+    <string name="onb_notifications_body">Las necesitamos para avisarte cuando tu WaliPet responda y gane XP.</string>
+    <string name="onb_notifications_action">Permitir notificaciones</string>
+    <string name="onb_battery_title">Batería (opcional)</string>
+    <string name="onb_battery_body">Eximir a WaliPet de la optimización agresiva de batería ayuda a que responda incluso con la pantalla apagada.</string>
+    <string name="onb_battery_action">Eximir de ahorro</string>
+    <string name="onb_battery_skip">Omitir por ahora</string>
+    <string name="onb_finish_title">¡Listo!</string>
+    <string name="onb_finish_body">Crea reglas como “Si el mensaje contiene precio → responde…”.\nTu WaliPet empezará a ganar XP con cada respuesta.</string>
+    <string name="onb_start">¡Empezar!</string>
+    <string name="onb_next">Siguiente</string>
+    <string name="onb_back">Atrás</string>
+
+    <!-- Notificaciones del sistema -->
+    <string name="notif_reply_title">WaliPet respondió</string>
+    <string name="notif_reply_text">Regla “%1$s” · +%2$d XP</string>
+    <string name="notif_levelup_text">¡Subiste al nivel %1$d! 🎉</string>
+    <string name="notif_listener_disabled_title">WaliPet está dormido</string>
+    <string name="notif_listener_disabled_text">El acceso a notificaciones está desactivado. Toca para reactivarlo.</string>
+    <string name="channel_automations_name">Automatizaciones</string>
+    <string name="channel_alerts_name">Alertas</string>
+</resources>

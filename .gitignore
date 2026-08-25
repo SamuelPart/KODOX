@@ -9,7 +9,12 @@
 /.idea/assetWizardSettings.xml
 .DS_Store
 /build
+/app/build
+/engine/build
 /captures
 .externalNativeBuild
 .cxx
-local.properties
+.kotlin
+*.hprof
+*.jks
+*.keystore
