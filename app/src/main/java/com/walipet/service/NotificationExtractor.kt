@@ -34,17 +34,10 @@ object NotificationExtractor {
             // Algunas ROMs devuelven null; lo ignoramos y caemos al texto plano.
         }
 
-        // Mensajes del Wearable.Extender (relojes) — otra fuente fiable.
-        // Cada entrada es un texto plano (sin remitente estructurado), así que
-        // se mapea como (remitente = null, texto = mensaje).
-        try {
-            val wearable = NotificationCompat.WearableExtender(notification)
-            for (message in wearable.messages) {
-                messages += null to message
-            }
-        } catch (_: Throwable) {
-            // Sin wearable: no pasa nada.
-        }
+        // Mensajes del Wearable.Extender: en realidad NotificationCompat.WearableExtender
+        // NO expone un getter `messages` (solo getPages()/getActions()), así que este
+        // bloque no compilaba. Los mensajes estructurados del chat ya se capturan arriba
+        // con MessagingStyle, que es la fuente correcta en Android 7+.
 
         val hasReplyAction = notification.actions?.any { it.remoteInputs.isNotEmpty() } == true
 
