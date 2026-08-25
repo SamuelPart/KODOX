@@ -34,7 +34,7 @@ class VoiceOverPlannerTest {
         )
         val exact = assertIs<VoiceLine.ExactMessage>(lines.single())
         assertEquals("¿Me pasas el precio?", exact.text)
-        assertEquals("¿Me pasas el precio?", VoiceOverPlanner.speechText(exact))
+        assertEquals("María dice ¿Me pasas el precio?", VoiceOverPlanner.speechText(exact))
     }
 
     @Test
@@ -64,7 +64,7 @@ class VoiceOverPlannerTest {
         )
         assertEquals(2, lines.size)
         val exact = assertIs<VoiceLine.ExactMessage>(lines[0])
-        assertEquals("estoy en camino", VoiceOverPlanner.speechText(exact))
+        assertEquals("Ana dice estoy en camino", VoiceOverPlanner.speechText(exact))
         val summary = assertIs<VoiceLine.ChatSummary>(lines[1])
         assertEquals("2 mensajes de 2 chats", VoiceOverPlanner.speechText(summary))
     }
@@ -99,7 +99,7 @@ class VoiceOverPlannerTest {
             listOf(chat("texto literal", postedAt = 0L)),
             nowEpochMilli = now,
         )
-        assertEquals("texto literal", VoiceOverPlanner.speechText(lines.single()))
+        assertEquals("María dice texto literal", VoiceOverPlanner.speechText(lines.single()))
     }
 
     @Test
@@ -129,7 +129,7 @@ class VoiceOverPlannerTest {
         val lines = VoiceOverPlanner.planSentReplies(logs, nowEpochMilli = now)
         assertEquals(2, lines.size)
         assertEquals(
-            "Hola, te enviaremos la información en un momento.",
+            "María dice Hola, te enviaremos la información en un momento.",
             VoiceOverPlanner.speechText(lines[0]),
         )
         assertEquals("1 mensaje de 1 chat", VoiceOverPlanner.speechText(lines[1]))
@@ -156,7 +156,7 @@ class VoiceOverPlannerTest {
             ),
             nowEpochMilli = now,
         )
-        assertEquals(listOf("¿Sigue disponible?"), lines.map { VoiceOverPlanner.speechText(it) })
+        assertEquals(listOf("María dice ¿Sigue disponible?"), lines.map { VoiceOverPlanner.speechText(it) })
     }
 
     @Test

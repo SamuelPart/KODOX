@@ -161,10 +161,18 @@ object VoiceOverPlanner {
         return plan(classifications, nowEpochMilli, lastHourMillis)
     }
 
-    /** Texto que debe pronunciar el TTS para una línea. */
+    /** Texto que debe pronunciar el TTS: «Nombre dice texto». */
     fun speechText(line: VoiceLine): String = when (line) {
-        is VoiceLine.ExactMessage -> line.text
+        is VoiceLine.ExactMessage -> formatExact(line.sender, line.text)
         is VoiceLine.ChatSummary -> formatSummary(line.messageCount, line.chatCount)
+    }
+
+    fun formatExact(sender: String, text: String): String {
+        val name = sender.trim()
+        if (name.isEmpty() || name.equals("WhatsApp", ignoreCase = true) || isSelfSender(name)) {
+            return text
+        }
+        return "$name dice $text"
     }
 
     fun formatSummary(messageCount: Int, chatCount: Int): String {

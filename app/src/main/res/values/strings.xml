@@ -159,7 +159,7 @@
     <string name="setup_finish">Listo</string>
     <string name="setup_features_title">Funciones</string>
     <string name="setup_voice_title">Leer en voz alta</string>
-    <string name="setup_voice_body">Lee solo lo que te manda la otra persona, un mensaje a la vez (el del chat de ahora). Si es de la última hora, el texto exacto; si no, «N mensajes de M chats». No lee respuestas automáticas ni se repite.</string>
+    <string name="setup_voice_body">Lee el nombre de WhatsApp y el texto: «María dice hola». Solo el mensaje del momento, última hora al pie de la letra. El resto: «N mensajes de M chats». No lee respuestas automáticas.</string>
 
     <!-- Notificaciones del sistema -->
     <string name="notif_reply_title">WaliPet respondió</string>
