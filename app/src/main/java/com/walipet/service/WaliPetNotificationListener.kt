@@ -4,6 +4,8 @@ import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import androidx.core.app.NotificationManagerCompat
 import com.walipet.di.ServiceLocator
+import com.walipet.engine.model.ParsedWhatsAppMessage
+import com.walipet.engine.rule.WhatsAppMessageParser
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -30,13 +32,29 @@ class WaliPetNotificationListener : NotificationListenerService() {
         if (sbn.packageName != WHATSAPP_PACKAGE) return
 
         val raw = NotificationExtractor.toRaw(sbn) ?: return
-        val parsed = com.walipet.engine.rule.WhatsAppMessageParser.parse(raw) ?: return
-
         // Sin acción de respuesta (RemoteInput) no hay nada que inyectar.
-        if (!parsed.hasReplyAction) return
+        if (!raw.hasReplyAction) return
 
         val actions = sbn.notification?.actions?.toList().orEmpty()
-        scope.launch { replier.process(parsed, actions) }
+
+        // Cuando la notificación trae varios mensajes (p. ej. llegan varios
+        // seguidos), se responde a CADA mensaje distinto, una sola vez por
+        // mensaje. ReplyGuard evita que una misma notificación re-emitida o un
+        // eco de nuestra propia respuesta dispare respuestas duplicadas.
+        val candidates: List<ParsedWhatsAppMessage> =
+            if (raw.messages.isNotEmpty()) {
+                raw.messages.mapNotNull { (sender, body) ->
+                    WhatsAppMessageParser.parseMessage(raw, sender, body)
+                }
+            } else {
+                listOfNotNull(WhatsAppMessageParser.parse(raw))
+            }
+
+        for (parsed in candidates) {
+            if (ReplyGuard.shouldReply(parsed.sender, parsed.text)) {
+                scope.launch { replier.process(parsed, actions) }
+            }
+        }
     }
 
     override fun onListenerConnected() {

@@ -8,6 +8,7 @@
     <string name="nav_rules">Reglas</string>
     <string name="nav_codex">Codex</string>
     <string name="nav_stats">Stats</string>
+    <string name="nav_setup">Ajustes</string>
 
     <!-- Dashboard -->
     <string name="dashboard_title">WaliPet</string>
@@ -140,6 +141,22 @@
     <string name="onb_start">¡Empezar!</string>
     <string name="onb_next">Siguiente</string>
     <string name="onb_back">Atrás</string>
+
+    <!-- Estado del sistema / Ajustes -->
+    <string name="setup_title">Estado del sistema</string>
+    <string name="setup_subtitle">Revisamos que todo esté listo para que WaliPet responda solo. Si falta algo, tócalo y se abre el ajuste correspondiente.</string>
+    <string name="setup_listener_title">Acceso a notificaciones</string>
+    <string name="setup_listener_body">Permite a WaliPet leer los mensajes de WhatsApp en segundo plano. Sin esto no responde nada.</string>
+    <string name="setup_notifications_title">Notificaciones de la app</string>
+    <string name="setup_notifications_body">Para avisarte cuando tu WaliPet responda y gane XP.</string>
+    <string name="setup_battery_title">Ahorro de batería</string>
+    <string name="setup_battery_body">Eximir a WaliPet del ahorro agresivo hace que responda más rápido, incluso con la pantalla apagada.</string>
+    <string name="setup_action_open">Abrir ajustes</string>
+    <string name="setup_action_exempt">Eximir batería</string>
+    <string name="setup_done_title">¡Todo listo! 🎉</string>
+    <string name="setup_done_body">WaliPet está preparado para responder automáticamente. Crea reglas en la pestaña “Reglas”.</string>
+    <string name="setup_incomplete">Faltan permisos por activar. Tócalos para abrir el ajuste y vuelve automáticamente.</string>
+    <string name="setup_finish">Listo</string>
 
     <!-- Notificaciones del sistema -->
     <string name="notif_reply_title">WaliPet respondió</string>

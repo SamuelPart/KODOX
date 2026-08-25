@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Leaderboard
 import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material.icons.filled.Rule
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -43,6 +44,7 @@ import com.walipet.ui.dashboard.DashboardScreen
 import com.walipet.ui.onboarding.OnboardingScreen
 import com.walipet.ui.rules.RuleEditorScreen
 import com.walipet.ui.rules.RulesScreen
+import com.walipet.ui.setup.SetupScreen
 import com.walipet.ui.stats.StatsScreen
 import com.walipet.ui.theme.ArcadeSecondary
 import com.walipet.ui.theme.ArcadeSurface
@@ -118,6 +120,7 @@ private val tabs = listOf(
     Tab("reglas", R.string.nav_rules, Icons.Filled.Rule),
     Tab("codex", R.string.nav_codex, Icons.Filled.AutoAwesome),
     Tab("stats", R.string.nav_stats, Icons.Filled.Leaderboard),
+    Tab("setup", R.string.nav_setup, Icons.Filled.Settings),
 )
 
 @Composable
@@ -180,6 +183,17 @@ private fun WaliPetScaffold(
                 composable("reglas") { RulesScreen(onNewRule = onNewRule, onEditRule = onEditRule) }
                 composable("codex") { CodexScreen() }
                 composable("stats") { StatsScreen() }
+                composable("setup") {
+                    SetupScreen(
+                        onFinished = {
+                            navController.navigate("habitat") {
+                                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        },
+                    )
+                }
             }
         }
     }

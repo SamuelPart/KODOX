@@ -40,18 +40,7 @@ object WhatsAppMessageParser {
         // 1) Mensajes estructurados: la fuente más fiable.
         if (raw.messages.isNotEmpty()) {
             val first = raw.messages.first()
-            val sender = first.first?.toString()?.trim()
-                ?.ifEmpty { title.ifEmpty { "WhatsApp" } }
-                ?: title.ifEmpty { "WhatsApp" }
-            val body = first.second?.toString()?.trim().orEmpty()
-            val isGroup = raw.messages.size > 1 || title.contains(GROUP_EMOJI)
-            return ParsedWhatsAppMessage(
-                sender = sender,
-                text = body,
-                chatType = if (isGroup) ChatType.GROUP else ChatType.PRIVATE,
-                groupName = title.takeIf { isGroup },
-                hasReplyAction = raw.hasReplyAction,
-            )
+            return parseMessage(raw, first.first, first.second)
         }
 
         // 2) Título de grupo (WhatsApp añade 👥 a las notificaciones de grupo).
@@ -95,6 +84,29 @@ object WhatsAppMessageParser {
             sender = cleanTitle.ifEmpty { "WhatsApp" },
             text = text,
             chatType = ChatType.PRIVATE,
+            hasReplyAction = raw.hasReplyAction,
+        )
+    }
+
+    /**
+     * Construye un [ParsedWhatsAppMessage] para un mensaje concreto del listado
+     * estructurado ([NotificationRawData.messages]). Permite responder a cada
+     * mensaje nuevo de la conversación (en lugar de solo al primero) sin que
+     * haya duplicados. Devuelve `null` si el cuerpo está vacío.
+     */
+    fun parseMessage(raw: NotificationRawData, sender: CharSequence?, body: CharSequence?): ParsedWhatsAppMessage? {
+        val title = raw.title?.toString()?.trim().orEmpty()
+        val s = sender?.toString()?.trim()
+            ?.ifEmpty { title.ifEmpty { "WhatsApp" } }
+            ?: title.ifEmpty { "WhatsApp" }
+        val b = body?.toString()?.trim().orEmpty()
+        if (b.isEmpty()) return null
+        val isGroup = raw.messages.size > 1 || title.contains(GROUP_EMOJI)
+        return ParsedWhatsAppMessage(
+            sender = s,
+            text = b,
+            chatType = if (isGroup) ChatType.GROUP else ChatType.PRIVATE,
+            groupName = title.takeIf { isGroup },
             hasReplyAction = raw.hasReplyAction,
         )
     }
