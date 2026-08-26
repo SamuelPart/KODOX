@@ -12,34 +12,34 @@ class StreakEngineTest {
     private val today = LocalDate.of(2026, 8, 25)
 
     @Test
-    fun `primera automatizacion inicia racha en 1`() {
-        val result = StreakEngine.applyAutomation(currentStreak = 0, lastAutomationDate = null, today = today)
+    fun `primera lectura inicia racha en 1`() {
+        val result = StreakEngine.applyReading(currentStreak = 0, lastAutomationDate = null, today = today)
         assertEquals(1, result.streakDays)
-        assertTrue(result.isFirstAutomationOfDay)
+        assertTrue(result.isFirstReadingOfDay)
         assertFalse(result.streakBroken)
     }
 
     @Test
-    fun `automatizar el mismo dia no aumenta la racha`() {
-        val result = StreakEngine.applyAutomation(currentStreak = 5, lastAutomationDate = today, today = today)
+    fun `leer el mismo dia no aumenta la racha`() {
+        val result = StreakEngine.applyReading(currentStreak = 5, lastAutomationDate = today, today = today)
         assertEquals(5, result.streakDays)
-        assertFalse(result.isFirstAutomationOfDay)
+        assertFalse(result.isFirstReadingOfDay)
         assertFalse(result.streakBroken)
     }
 
     @Test
-    fun `automatizar al dia siguiente aumenta la racha`() {
-        val result = StreakEngine.applyAutomation(currentStreak = 5, lastAutomationDate = today.minusDays(1), today = today)
+    fun `leer al dia siguiente aumenta la racha`() {
+        val result = StreakEngine.applyReading(currentStreak = 5, lastAutomationDate = today.minusDays(1), today = today)
         assertEquals(6, result.streakDays)
-        assertTrue(result.isFirstAutomationOfDay)
+        assertTrue(result.isFirstReadingOfDay)
         assertFalse(result.streakBroken)
     }
 
     @Test
     fun `un hueco de mas de un dia rompe la racha`() {
-        val result = StreakEngine.applyAutomation(currentStreak = 12, lastAutomationDate = today.minusDays(3), today = today)
+        val result = StreakEngine.applyReading(currentStreak = 12, lastAutomationDate = today.minusDays(3), today = today)
         assertEquals(1, result.streakDays)
-        assertTrue(result.isFirstAutomationOfDay)
+        assertTrue(result.isFirstReadingOfDay)
         assertTrue(result.streakBroken)
     }
 

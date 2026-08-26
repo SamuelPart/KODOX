@@ -10,24 +10,31 @@ import java.time.Instant
 import java.time.LocalDate
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
-/** Resultado de registrar una automatización exitosa. */
-data class AutomationResult(
+/** Resultado de registrar una lectura en voz alta. */
+data class ProgressResult(
     val pet: PetState,
     val xpGained: Int,
     val leveledUp: Boolean,
     val levelsGained: Int,
-    val isFirstAutomationOfDay: Boolean,
+    val isFirstReadingOfDay: Boolean,
 )
 
 /**
  * Repositorio del estado de la mascota. Única puerta de escritura del
  * progreso: aplica el motor (XP + rachas) y persiste en Room.
+ *
+ * El huevo y la racha crecen solo con lecturas en voz alta, nunca con
+ * respuestas automáticas.
  */
 class PetRepository(
     private val dao: PetDao,
     private val clock: Clock = Clock.SYSTEM,
 ) {
+
+    private val writeLock = Mutex()
 
     fun observe(): Flow<PetState> =
         dao.observe().map { it?.toDomain() ?: PetState() }
@@ -40,14 +47,17 @@ class PetRepository(
     }
 
     /**
-     * Registra una respuesta automática enviada con éxito:
+     * Registra un mensaje leído en voz alta:
      * actualiza XP/nivel, racha, energía/felicidad y contadores.
      */
-    suspend fun recordAutomation(today: LocalDate = clock.today(), now: Instant = clock.now()): AutomationResult {
+    suspend fun recordSpokenMessage(
+        today: LocalDate = clock.today(),
+        now: Instant = clock.now(),
+    ): ProgressResult = writeLock.withLock {
         val current = getState()
 
-        val streak = StreakEngine.applyAutomation(current.streakDays, current.lastAutomationDate, today)
-        val xpAmount = XpEngine.xpForAutomation(streak.isFirstAutomationOfDay)
+        val streak = StreakEngine.applyReading(current.streakDays, current.lastAutomationDate, today)
+        val xpAmount = XpEngine.xpForReading(streak.isFirstReadingOfDay)
         val xp = XpEngine.addXp(current.level, current.xp, xpAmount)
 
         val updated = current.copy(
@@ -63,12 +73,12 @@ class PetRepository(
         )
         dao.upsert(PetEntity.fromDomain(updated))
 
-        return AutomationResult(
+        ProgressResult(
             pet = updated,
             xpGained = xpAmount,
             leveledUp = xp.leveledUp,
             levelsGained = xp.levelsGained,
-            isFirstAutomationOfDay = streak.isFirstAutomationOfDay,
+            isFirstReadingOfDay = streak.isFirstReadingOfDay,
         )
     }
 }

@@ -40,17 +40,29 @@ class NotificationHelper(private val context: Context) {
 
     private val notifier = NotificationManagerCompat.from(context)
 
-    /** Aviso sutil cada vez que WaliPet responde (y, si aplica, sube de nivel). */
-    fun notifyReplySent(rule: com.walipet.engine.model.Rule, xpGained: Int, leveledUp: Boolean, newLevel: Int) {
-        val levelUpText = if (leveledUp) "\n" + context.getString(R.string.notif_levelup_text, newLevel) else ""
+    /** Aviso sutil cada vez que WaliPet responde (sin XP: eso lo da la voz). */
+    fun notifyReplySent(rule: com.walipet.engine.model.Rule) {
+        val text = context.getString(R.string.notif_reply_text, rule.name)
         val notification = NotificationCompat.Builder(context, NotificationChannels.CHANNEL_AUTOMATIONS)
             .setSmallIcon(R.drawable.ic_stat_walipet)
             .setContentTitle(context.getString(R.string.notif_reply_title))
-            .setContentText(context.getString(R.string.notif_reply_text, rule.name, xpGained) + levelUpText)
-            .setStyle(NotificationCompat.BigTextStyle().bigText(context.getString(R.string.notif_reply_text, rule.name, xpGained) + levelUpText))
+            .setContentText(text)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(text))
             .setAutoCancel(true)
             .build()
         runCatching { notifier.notify(NOTIFICATION_ID_REPLY, notification) }
+    }
+
+    /** El huevo crece: aviso cuando una lectura en voz alta sube de nivel. */
+    fun notifyLevelUp(newLevel: Int) {
+        val text = context.getString(R.string.notif_levelup_text, newLevel)
+        val notification = NotificationCompat.Builder(context, NotificationChannels.CHANNEL_AUTOMATIONS)
+            .setSmallIcon(R.drawable.ic_stat_walipet)
+            .setContentTitle(context.getString(R.string.notif_levelup_title))
+            .setContentText(text)
+            .setAutoCancel(true)
+            .build()
+        runCatching { notifier.notify(NOTIFICATION_ID_LEVEL_UP, notification) }
     }
 
     /** Alerta persistente cuando el acceso a notificaciones está desactivado. */
@@ -79,5 +91,6 @@ class NotificationHelper(private val context: Context) {
     private companion object {
         const val NOTIFICATION_ID_REPLY = 1001
         const val NOTIFICATION_ID_LISTENER_DISABLED = 1002
+        const val NOTIFICATION_ID_LEVEL_UP = 1003
     }
 }

@@ -49,30 +49,46 @@ class VoiceOver(context: Context) {
         }
     }
 
-    fun speakLines(lines: List<VoiceLine>) {
-        if (lines.isEmpty()) return
+    /**
+     * Encola las líneas nuevas y devuelve las que realmente se van a leer
+     * (sin duplicados ni respuestas propias). El caller usa esa lista para
+     * alimentar el huevo y la racha.
+     */
+    fun speakLines(lines: List<VoiceLine>): List<VoiceLine> {
+        if (lines.isEmpty()) return emptyList()
         val now = System.currentTimeMillis()
         prune(now)
 
-        val fresh = lines.map { VoiceOverPlanner.speechText(it).trim() }.filter { text ->
-            if (text.isEmpty()) return@filter false
-            if (ReplyGuard.wasSent(text)) return@filter false
+        val fresh = mutableListOf<VoiceLine>()
+        val texts = mutableListOf<String>()
+        for (line in lines) {
+            val text = VoiceOverPlanner.speechText(line).trim()
+            if (text.isEmpty()) continue
+            if (ReplyGuard.wasSent(text)) continue
             val key = text.lowercase()
-            synchronized(spoken) {
-                if (spoken.containsKey(key)) return@filter false
-                spoken[key] = now
-                true
+            val accepted = synchronized(spoken) {
+                if (spoken.containsKey(key)) {
+                    false
+                } else {
+                    spoken[key] = now
+                    true
+                }
+            }
+            if (accepted) {
+                fresh += line
+                texts += text
             }
         }
-        if (fresh.isEmpty()) return
+        if (fresh.isEmpty()) return emptyList()
 
         if (!ready) {
-            synchronized(pending) { pending.addAll(fresh) }
-            return
+            synchronized(pending) { pending.addAll(texts) }
+            return fresh
         }
         mainHandler.post {
-            fresh.forEach { speakNow(it) }
+            texts.forEach { speakNow(it) }
         }
+        return fresh
     }
 
     fun stop() {

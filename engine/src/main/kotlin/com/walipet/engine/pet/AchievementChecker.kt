@@ -23,7 +23,7 @@ object AchievementChecker {
         Achievement("level_3", "egg", { it.pet.level >= 3 }),
         Achievement("level_6", "shield", { it.pet.level >= 6 }),
         Achievement("level_10", "star", { it.pet.level >= 10 }),
-        Achievement("xp_1000", "sparkle", { it.stats.totalXp >= 1_000 }),
+        Achievement("xp_1000", "sparkle", { XpEngine.lifetimeXp(it.pet.level, it.pet.xp) >= 1_000 }),
         Achievement("hour_saved", "timer", { it.stats.timeSavedSeconds >= 3_600 }),
     )
 

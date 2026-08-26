@@ -179,11 +179,13 @@ fun StatsScreen(
                             style = MaterialTheme.typography.bodyMedium,
                             maxLines = 2,
                         )
-                        Text(
-                            text = stringResource(R.string.stats_xp_gained, log.xpGained),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = ArcadePrimary,
-                        )
+                        if (log.xpGained > 0) {
+                            Text(
+                                text = stringResource(R.string.stats_xp_gained, log.xpGained),
+                                style = MaterialTheme.typography.labelMedium,
+                                color = ArcadePrimary,
+                            )
+                        }
                     }
                 }
             }

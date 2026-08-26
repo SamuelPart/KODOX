@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
  * (llamadas, WhatsApp Web, copias de seguridad, estados…) se descartan: no
  * se leen ni se responden. Los mensajes que te envían de la última hora se
  * leen al pie de la letra; el resto se resume. La respuesta automática
- * **no** se lee.
+ * **no** se lee. Cada lectura real alimenta el huevo y la racha.
  */
 class WaliPetNotificationListener : NotificationListenerService() {
 
@@ -44,7 +44,17 @@ class WaliPetNotificationListener : NotificationListenerService() {
                 nowEpochMilli = System.currentTimeMillis(),
                 isOwnReply = ReplyGuard::wasSent,
             )
-            voiceOver.speakLines(lines)
+            val spoken = voiceOver.speakLines(lines)
+            if (spoken.isNotEmpty()) {
+                scope.launch {
+                    spoken.forEach { _ ->
+                        val progress = serviceLocator.petRepository.recordSpokenMessage()
+                        if (progress.leveledUp) {
+                            serviceLocator.notificationHelper.notifyLevelUp(progress.pet.level)
+                        }
+                    }
+                }
+            }
         }
 
         if (classified !is WhatsAppNotificationClass.ChatMessages) return

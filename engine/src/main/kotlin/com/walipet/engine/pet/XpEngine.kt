@@ -12,13 +12,14 @@ import com.walipet.engine.model.PetState
  *  - ...
  *  - Nivel 19 → 20: 1900 XP
  *
- * Cada automatización exitosa otorga [XP_PER_AUTOMATION] XP (+ [FIRST_AUTOMATION_OF_DAY_BONUS]
- * si es la primera del día, para premiar la constancia diaria).
+ * Cada mensaje leído en voz alta otorga [XP_PER_READING] XP (+ [FIRST_READING_OF_DAY_BONUS]
+ * si es la primera lectura del día, para premiar la constancia diaria).
+ * Las respuestas automáticas no dan XP.
  */
 object XpEngine {
 
-    const val XP_PER_AUTOMATION = 15
-    const val FIRST_AUTOMATION_OF_DAY_BONUS = 10
+    const val XP_PER_READING = 15
+    const val FIRST_READING_OF_DAY_BONUS = 10
 
     /** XP necesarios para subir de [level] a level+1 (0 si ya es el máximo). */
     fun xpToNextLevel(level: Int): Int {
@@ -61,10 +62,13 @@ object XpEngine {
         return XpResult(newXp = xp, newLevel = level, levelsGained = gained)
     }
 
+    /** XP de por vida: lo ya invertido en niveles más el progreso del nivel actual. */
+    fun lifetimeXp(level: Int, xp: Int): Int = totalXpForLevel(level) + xp
+
     /**
-     * Puntos de experiencia que otorga una automatización, teniendo en cuenta
-     * si es la primera del día (bonus de constancia).
+     * Puntos de experiencia que otorga una lectura en voz alta, teniendo en
+     * cuenta si es la primera del día (bonus de constancia).
      */
-    fun xpForAutomation(isFirstAutomationOfDay: Boolean): Int =
-        XP_PER_AUTOMATION + if (isFirstAutomationOfDay) FIRST_AUTOMATION_OF_DAY_BONUS else 0
+    fun xpForReading(isFirstReadingOfDay: Boolean): Int =
+        XP_PER_READING + if (isFirstReadingOfDay) FIRST_READING_OF_DAY_BONUS else 0
 }

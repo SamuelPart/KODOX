@@ -34,8 +34,13 @@ class AchievementCheckerTest {
         val ctx = context(stats = AutomationStats(totalCount = 100, totalXp = 1_500))
         val ids = AchievementChecker.unlocked(ctx).map { it.id }
         assertTrue("replies_100" in ids)
-        assertTrue("xp_1000" in ids)
         assertTrue("replies_500" !in ids)
+    }
+
+    @Test
+    fun `mil xp de lecturas desbloquean xp_1000`() {
+        val ctx = context(pet = PetState(level = 5, xp = 0))
+        assertTrue(AchievementChecker.unlocked(ctx).any { it.id == "xp_1000" })
     }
 
     @Test

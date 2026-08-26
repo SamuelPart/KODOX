@@ -20,12 +20,12 @@
     <string name="dashboard_energy">Energía</string>
     <string name="dashboard_happiness">Felicidad</string>
     <string name="dashboard_recent">Actividad reciente</string>
-    <string name="dashboard_empty_activity">Tu WaliPet está descansando…\nActiva reglas y recibe mensajes para empezar.</string>
+    <string name="dashboard_empty_activity">Tu WaliPet está descansando…\nActiva la voz en off y recibe mensajes para que el huevo y la racha crezcan.</string>
     <string name="dashboard_new_rule">Nueva regla</string>
     <string name="mood_happy">¡Feliz! La racha está en llamas</string>
-    <string name="mood_content">Tranquilo y listo para responder</string>
+    <string name="mood_content">Tranquilo y listo para leer en voz alta</string>
     <string name="mood_sad">Racha en peligro: hoy aún puedes salvarla</string>
-    <string name="mood_sleeping">Durmiendo… necesita actividad</string>
+    <string name="mood_sleeping">Durmiendo… necesita escuchar mensajes</string>
 
     <!-- Reglas -->
     <string name="rules_title">Reglas lógicas</string>
@@ -70,11 +70,11 @@
     <string name="stage_egg_name">Huevo digital</string>
     <string name="stage_egg_desc">Niveles 1–2 · Todo comienza con un pequeño byte.</string>
     <string name="stage_baby_name">Cría</string>
-    <string name="stage_baby_desc">Niveles 3–5 · Abre los ojos al mundo de las respuestas.</string>
+    <string name="stage_baby_desc">Niveles 3–5 · Abre los ojos al mundo de los chats.</string>
     <string name="stage_young_name">Mascota joven</string>
     <string name="stage_young_desc">Niveles 6–9 · Ágil y llena de energía.</string>
     <string name="stage_epic_name">Mascota épica</string>
-    <string name="stage_epic_desc">Niveles 10+ · Leyenda de la automatización.</string>
+    <string name="stage_epic_desc">Niveles 10+ · Leyenda de la voz en off.</string>
     <string name="stage_locked">Bloqueada · nivel %1$d</string>
     <string name="stage_current">Etapa actual</string>
     <string name="achievement_unlocked">Desbloqueado</string>
@@ -124,20 +124,20 @@
 
     <!-- Onboarding -->
     <string name="onb_welcome_title">Bienvenido a WaliPet</string>
-    <string name="onb_welcome_body">Tu mascota responde WhatsApp por ti mientras duermes.\nGana XP, sube de nivel y evoluciona con cada automatización.</string>
+    <string name="onb_welcome_body">Tu mascota lee WhatsApp en voz alta y puede responder por ti.\nGana XP, sube de nivel y evoluciona con cada lectura.</string>
     <string name="onb_listener_title">Acceso a notificaciones</string>
     <string name="onb_listener_body">Para leer los mensajes de WhatsApp en segundo plano (todo se procesa localmente en tu dispositivo), concede a WaliPet el acceso a notificaciones.</string>
     <string name="onb_listener_action">Abrir ajustes</string>
     <string name="onb_listener_done">Permiso concedido</string>
     <string name="onb_notifications_title">Notificaciones de la app</string>
-    <string name="onb_notifications_body">Las necesitamos para avisarte cuando tu WaliPet responda y gane XP.</string>
+    <string name="onb_notifications_body">Las necesitamos para avisarte cuando tu WaliPet lea un chat y suba de nivel.</string>
     <string name="onb_notifications_action">Permitir notificaciones</string>
     <string name="onb_battery_title">Batería (opcional)</string>
     <string name="onb_battery_body">Eximir a WaliPet de la optimización agresiva de batería ayuda a que responda incluso con la pantalla apagada.</string>
     <string name="onb_battery_action">Eximir de ahorro</string>
     <string name="onb_battery_skip">Omitir por ahora</string>
     <string name="onb_finish_title">¡Listo!</string>
-    <string name="onb_finish_body">Crea reglas como “Si el mensaje contiene precio → responde…”.\nTu WaliPet empezará a ganar XP con cada respuesta.</string>
+    <string name="onb_finish_body">Activa “Leer en voz alta” en Ajustes.\nEl huevo y la racha crecen cada vez que WaliPet lee un mensaje.</string>
     <string name="onb_start">¡Empezar!</string>
     <string name="onb_next">Siguiente</string>
     <string name="onb_back">Atrás</string>
@@ -148,7 +148,7 @@
     <string name="setup_listener_title">Acceso a notificaciones</string>
     <string name="setup_listener_body">Permite a WaliPet leer los mensajes de WhatsApp en segundo plano. Sin esto no responde nada.</string>
     <string name="setup_notifications_title">Notificaciones de la app</string>
-    <string name="setup_notifications_body">Para avisarte cuando tu WaliPet responda y gane XP.</string>
+    <string name="setup_notifications_body">Para avisarte cuando tu WaliPet lea un chat y suba de nivel.</string>
     <string name="setup_battery_title">Ahorro de batería</string>
     <string name="setup_battery_body">Eximir a WaliPet del ahorro agresivo hace que responda más rápido, incluso con la pantalla apagada.</string>
     <string name="setup_action_open">Abrir ajustes</string>
@@ -159,11 +159,12 @@
     <string name="setup_finish">Listo</string>
     <string name="setup_features_title">Funciones</string>
     <string name="setup_voice_title">Leer en voz alta</string>
-    <string name="setup_voice_body">Lee el nombre de WhatsApp y el texto: «María dice hola». Solo el mensaje del momento, última hora al pie de la letra. El resto: «N mensajes de M chats». No lee respuestas automáticas.</string>
+    <string name="setup_voice_body">Lee el nombre de WhatsApp y el texto: «María dice hola». Solo el mensaje del momento, última hora al pie de la letra. El resto: «N mensajes de M chats». Cada lectura alimenta al huevo y mantiene la racha. No lee respuestas automáticas.</string>
 
     <!-- Notificaciones del sistema -->
     <string name="notif_reply_title">WaliPet respondió</string>
-    <string name="notif_reply_text">Regla “%1$s” · +%2$d XP</string>
+    <string name="notif_reply_text">Regla “%1$s”</string>
+    <string name="notif_levelup_title">¡Tu WaliPet creció!</string>
     <string name="notif_levelup_text">¡Subiste al nivel %1$d!</string>
     <string name="notif_listener_disabled_title">WaliPet está dormido</string>
     <string name="notif_listener_disabled_text">El acceso a notificaciones está desactivado. Toca para reactivarlo.</string>

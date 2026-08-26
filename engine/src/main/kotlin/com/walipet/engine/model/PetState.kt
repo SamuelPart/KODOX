@@ -7,18 +7,18 @@ import java.time.LocalDate
  * Estado completo de la mascota (WaliPet).
  *
  * Todo el progreso que se ve en el Dashboard (nivel, XP, racha, energía,
- * felicidad, automatizaciones totales) vive aquí. Los campos `energy` y
+ * felicidad, lecturas totales) vive aquí. Los campos `energy` y
  * `happiness` son derivados cada vez que se consulta el estado, a partir
- * de la recencia de actividad ([lastAutomationDate]) y la racha.
+ * de la recencia de lecturas en voz alta ([lastAutomationDate]) y la racha.
  */
 data class PetState(
     val level: Int = 1,
     val xp: Int = 0,
-    /** Racha actual en días consecutivos con al menos una automatización. */
+    /** Racha actual en días consecutivos con al menos una lectura en voz alta. */
     val streakDays: Int = 0,
     /** Racha máxima histórica. */
     val longestStreak: Int = 0,
-    /** Total de respuestas automáticas enviadas con éxito. */
+    /** Total de mensajes leídos en voz alta (el huevo crece con esto, no con auto-respuestas). */
     val totalAutomations: Long = 0,
     /** Energía (0..100), derivada del tiempo sin actividad. */
     val energy: Int = PetState.MAX_ENERGY,

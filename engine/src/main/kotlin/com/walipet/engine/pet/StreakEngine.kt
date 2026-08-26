@@ -5,33 +5,34 @@ import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
 /**
- * Sistema de rachas (streaks): premia automatizar al menos una vez al día.
+ * Sistema de rachas (streaks): premia leer al menos un mensaje en voz alta al día.
  *
  * Reglas:
- *  - Primera automatización de la historia     → racha = 1.
- *  - Segunda automatización el mismo día       → la racha no cambia.
- *  - Automatización al día siguiente           → racha + 1.
- *  - Si pasó más de un día completo sin actuar → la racha se reinicia a 1
+ *  - Primera lectura de la historia            → racha = 1.
+ *  - Segunda lectura el mismo día              → la racha no cambia.
+ *  - Lectura al día siguiente                  → racha + 1.
+ *  - Si pasó más de un día completo sin leer   → la racha se reinicia a 1
  *    (se considera "rota").
+ * Las respuestas automáticas no cuentan.
  */
 object StreakEngine {
 
     data class StreakResult(
         val streakDays: Int,
-        /** `true` si es la primera automatización del día (otorga bonus de XP). */
-        val isFirstAutomationOfDay: Boolean,
+        /** `true` si es la primera lectura del día (otorga bonus de XP). */
+        val isFirstReadingOfDay: Boolean,
         /** `true` si la racha anterior se perdió por inactividad. */
         val streakBroken: Boolean,
     )
 
     /**
-     * Calcula el nuevo valor de racha tras una automatización exitosa hoy.
+     * Calcula el nuevo valor de racha tras una lectura en voz alta hoy.
      *
      * @param currentStreak racha actual almacenada.
-     * @param lastAutomationDate fecha de la última automatización (null si nunca).
+     * @param lastAutomationDate fecha de la última lectura (null si nunca).
      * @param today fecha de hoy (inyectada vía Clock para poder probar).
      */
-    fun applyAutomation(currentStreak: Int, lastAutomationDate: LocalDate?, today: LocalDate): StreakResult {
+    fun applyReading(currentStreak: Int, lastAutomationDate: LocalDate?, today: LocalDate): StreakResult {
         return when {
             lastAutomationDate == null -> StreakResult(1, true, currentStreak > 0)
             lastAutomationDate == today -> StreakResult(maxOf(currentStreak, 1), false, false)
@@ -40,7 +41,7 @@ object StreakEngine {
         }
     }
 
-    /** Días completos transcurridos desde la última automatización (0 si fue hoy). */
+    /** Días completos transcurridos desde la última lectura (0 si fue hoy). */
     fun missedDays(lastAutomationDate: LocalDate?, today: LocalDate): Int {
         if (lastAutomationDate == null) return 0
         return ChronoUnit.DAYS.between(lastAutomationDate, today).toInt().coerceAtLeast(0)
@@ -48,7 +49,7 @@ object StreakEngine {
 
     /**
      * `true` si la racha está en peligro: hay racha activa y se perdió al
-     * menos un día completo sin automatizar.
+     * menos un día completo sin leer en voz alta.
      */
     fun isStreakInDanger(lastAutomationDate: LocalDate?, today: LocalDate): Boolean {
         if (lastAutomationDate == null) return false

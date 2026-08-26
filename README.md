@@ -3,10 +3,10 @@
 **Tu mascota pixel art que responde WhatsApp por ti.**
 
 WaliPet combina un *NotificationListenerService* con un motor de gamificación
-estilo Tamagotchi: cada vez que un mensaje de WhatsApp coincide con una regla
-lógica configurada por ti, WaliPet responde automáticamente por `RemoteInput`
-(incluso con la pantalla apagada), y tu mascota gana XP, mantiene su racha
-diaria y evoluciona a través de 4 etapas pixel art.
+estilo Tamagotchi: lee en voz alta los mensajes que te envían y, si coinciden
+con una regla, puede responder automáticamente por `RemoteInput` (incluso con
+la pantalla apagada). El huevo, el XP y la racha diaria crecen **solo** con
+cada lectura en voz alta, no con las respuestas automáticas.
 
 > 🔒 **Privacidad primero:** todos los mensajes se procesan **100 % localmente
 > en tu dispositivo**. WaliPet no tiene permisos de red ni sube ningún texto
@@ -25,9 +25,9 @@ diaria y evoluciona a través de 4 etapas pixel art.
 | **Onboarding** | Guía paso a paso de los permisos especiales (acceso a notificaciones, notificaciones de la app, exención de batería). |
 
 **Gamificación (motor `engine`):**
-- XP por automatización: **+15 XP** (bonus **+10 XP** si es la primera del día).
+- XP por lectura en voz alta: **+15 XP** (bonus **+10 XP** si es la primera del día). Las respuestas automáticas no dan XP ni racha.
 - Curva de niveles progresiva: `100 × nivel` XP para subir (N1→2: 100, N2→3: 200, …).
-- Racha diaria: automatizar al menos una vez al día mantiene/crece la racha.
+- Racha diaria: leer al menos un mensaje en voz alta al día mantiene/crece la racha.
 - Estados de ánimo derivados de la actividad reciente (energía y felicidad 0-100).
 - **Voz en off** (TTS local): lee el texto exacto de los mensajes **que te envían** en la **última hora**; el resto lo resume como «N mensajes de M chats». No lee las respuestas automáticas de WaliPet ni avisos de WhatsApp que no son de un chat (llamadas, Web, copias de seguridad, estados…).
 
@@ -63,10 +63,12 @@ Notificación WhatsApp ──► NotificationListenerService
               RuleEngine (engine, puro) ──► regla coincidente
                               │
                               ▼
-              AutomatedReplier ──► RemoteInput.addResultsToIntent + actionIntent.send()
+              VoiceOver ──► TTS («María dice hola»)
                               │
                               ▼
-         PetRepository.recordAutomation() (+XP, +racha)  →  Log en Room  →  notificación "+XP"
+         PetRepository.recordSpokenMessage() (+XP, +racha, huevo)
+                              │
+              AutomatedReplier ──► RemoteInput (sin XP ni racha)  →  Log en Room
 ```
 
 ---
@@ -95,7 +97,7 @@ Notificación WhatsApp ──► NotificationListenerService
    el `NotificationListenerService` lea las notificaciones de WhatsApp.
    Se concede en *Ajustes → Acceso a notificaciones* (onboarding incluido).
 2. **Notificaciones** (`POST_NOTIFICATIONS`, Android 13+): para avisarte cuando
-   WaliPet responde y gana XP.
+   WaliPet responde o cuando una lectura sube de nivel al huevo.
 3. **Exención de batería** (opcional): en teléfonos con ahorro agresivo de
    batería (Xiaomi, Huawei, Samsung…), evita que el sistema mate el servicio.
 4. **`RECEIVE_BOOT_COMPLETED`**: el watchdog recuerda al usuario si el acceso a

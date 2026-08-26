@@ -25,8 +25,8 @@ import kotlinx.coroutines.launch
  *  1. Evalúa el mensaje contra las reglas activas (motor puro).
  *  2. Si hay coincidencia, inyecta la respuesta vía [RemoteInput] sobre la
  *     acción de la notificación de WhatsApp (funciona con pantalla apagada).
- *  3. Persiste el resultado: XP/racha de la mascota, contador de la regla
- *     y entrada en el historial.
+ *  3. Persiste el resultado: contador de la regla y entrada en el historial.
+ *     El huevo y la racha **no** crecen aquí: solo con la voz en off.
  *
  * [sendReply] usa la API pública `RemoteInput.addResultsToIntent` + el
  * `PendingIntent` de la acción de la notificación, el mismo mecanismo que
@@ -66,8 +66,6 @@ class AutomatedReplier(
                 ReplyGuard.markSent(match.rule.response)
 
                 val now = clock.now()
-                val today = clock.today()
-                val automation = petRepository.recordAutomation(today, now)
                 ruleRepository.recordTriggered(match.rule.id, now.toEpochMilli())
                 logRepository.add(
                     AutomationLog(
@@ -77,21 +75,16 @@ class AutomatedReplier(
                         chatType = message.chatType,
                         messageSnippet = message.text.take(60),
                         responseText = match.rule.response,
-                        xpGained = automation.xpGained,
+                        xpGained = 0,
                         occurredAt = now,
                     ),
                 )
-                notificationHelper.notifyReplySent(
-                    rule = match.rule,
-                    xpGained = automation.xpGained,
-                    leveledUp = automation.leveledUp,
-                    newLevel = automation.pet.level,
-                )
+                notificationHelper.notifyReplySent(match.rule)
                 Outcome.Replied(
                     rule = match.rule,
-                    xpGained = automation.xpGained,
-                    leveledUp = automation.leveledUp,
-                    newLevel = automation.pet.level,
+                    xpGained = 0,
+                    leveledUp = false,
+                    newLevel = petRepository.getState().level,
                 )
             }
             is RuleMatch.InvalidRegex, is RuleMatch.NoMatch -> Outcome.NoMatch

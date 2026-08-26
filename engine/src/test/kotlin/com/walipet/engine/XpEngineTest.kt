@@ -37,7 +37,7 @@ class XpEngineTest {
 
     @Test
     fun `sin xp suficiente no hay subida`() {
-        val result = XpEngine.addXp(currentLevel = 3, currentXp = 50, amount = XpEngine.XP_PER_AUTOMATION)
+        val result = XpEngine.addXp(currentLevel = 3, currentXp = 50, amount = XpEngine.XP_PER_READING)
         assertEquals(3, result.newLevel)
         assertEquals(65, result.newXp)
         assertFalse(result.leveledUp)
@@ -51,13 +51,20 @@ class XpEngineTest {
     }
 
     @Test
-    fun `una automatizacion normal da 15 xp`() {
-        assertEquals(15, XpEngine.xpForAutomation(isFirstAutomationOfDay = false))
+    fun `una lectura normal da 15 xp`() {
+        assertEquals(15, XpEngine.xpForReading(isFirstReadingOfDay = false))
     }
 
     @Test
-    fun `la primera automatizacion del dia da bonus`() {
-        assertEquals(25, XpEngine.xpForAutomation(isFirstAutomationOfDay = true))
+    fun `la primera lectura del dia da bonus`() {
+        assertEquals(25, XpEngine.xpForReading(isFirstReadingOfDay = true))
+    }
+
+    @Test
+    fun `lifetimeXp suma la curva mas el progreso actual`() {
+        assertEquals(0, XpEngine.lifetimeXp(1, 0))
+        assertEquals(40, XpEngine.lifetimeXp(1, 40))
+        assertEquals(140, XpEngine.lifetimeXp(2, 40))
     }
 
     @Test
