@@ -22,6 +22,7 @@
     <string name="dashboard_recent">Actividad reciente</string>
     <string name="dashboard_empty_activity">Tu WaliPet está descansando…\nActiva la voz en off y recibe mensajes para que el huevo y la racha crezcan.</string>
     <string name="dashboard_new_rule">Nueva regla</string>
+    <string name="dashboard_pet_tap">Toca para que se mueva</string>
     <string name="mood_happy">¡Feliz! La racha está en llamas</string>
     <string name="mood_content">Tranquilo y listo para leer en voz alta</string>
     <string name="mood_sad">Racha en peligro: hoy aún puedes salvarla</string>

@@ -1,5 +1,6 @@
 package com.walipet.ui.components
 
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -8,8 +9,12 @@ import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -20,6 +25,10 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import com.walipet.R
 import com.walipet.engine.model.EvolutionStage
 import com.walipet.engine.model.PetMood
 import com.walipet.ui.theme.ArcadeOnSurface
@@ -27,7 +36,9 @@ import com.walipet.ui.theme.ArcadeSecondary
 import com.walipet.ui.theme.ArcadeStreak
 import com.walipet.ui.theme.ArcadeTertiary
 import kotlin.math.PI
+import kotlin.math.abs
 import kotlin.math.sin
+import kotlinx.coroutines.launch
 
 /**
  * El WaliPet: el mismo zorro del icono, dibujado con forma clara
@@ -38,7 +49,13 @@ fun PixelArtPet(
     stage: EvolutionStage,
     mood: PetMood,
     modifier: Modifier = Modifier,
+    interactive: Boolean = false,
 ) {
+    val play = remember { Animatable(0f) }
+    val playT by play.asState()
+    val scope = rememberCoroutineScope()
+    val interaction = remember { MutableInteractionSource() }
+    val tapLabel = stringResource(R.string.dashboard_pet_tap)
     val transition = rememberInfiniteTransition(label = "pet")
 
     val bob by transition.animateFloat(
@@ -76,8 +93,37 @@ fun PixelArtPet(
     )
 
     val eyesClosed = mood == PetMood.SLEEPING || blink > 0.5f
+    val tapMod = if (interactive) {
+        Modifier.clickable(
+            interactionSource = interaction,
+            indication = null,
+            role = Role.Button,
+            onClickLabel = tapLabel,
+        ) {
+            scope.launch {
+                play.snapTo(0f)
+                play.animateTo(
+                    targetValue = 1f,
+                    animationSpec = tween(durationMillis = tapDurationMs(stage), easing = LinearEasing),
+                )
+            }
+        }
+    } else {
+        Modifier
+    }
 
-    Canvas(modifier = modifier) {
+    Canvas(
+        modifier = modifier
+            .then(tapMod)
+            .graphicsLayer {
+                val motion = tapMotion(stage, playT, size.minDimension)
+                rotationZ = motion.rotation
+                scaleX = motion.scaleX
+                scaleY = motion.scaleY
+                translationX = motion.translationX
+                translationY = motion.translationY
+            },
+    ) {
         val unit = size.minDimension
         val bobOffset = sin(bob * 2 * PI).toFloat() * unit * 0.025f
         val sleepDrift = if (mood == PetMood.SLEEPING) {
@@ -95,10 +141,10 @@ fun PixelArtPet(
 
         translate(top = yShift) {
             when (stage) {
-                EvolutionStage.EGG -> drawFoxEgg(unit)
-                EvolutionStage.BABY -> drawFox(unit, FoxLook.KIT, eyesClosed)
-                EvolutionStage.YOUNG -> drawFox(unit, FoxLook.YOUNG, eyesClosed)
-                EvolutionStage.EPIC -> drawFox(unit, FoxLook.EPIC, eyesClosed)
+                EvolutionStage.EGG -> drawFoxEgg(unit, playT)
+                EvolutionStage.BABY -> drawFox(unit, FoxLook.KIT, eyesClosed, playT)
+                EvolutionStage.YOUNG -> drawFox(unit, FoxLook.YOUNG, eyesClosed, playT)
+                EvolutionStage.EPIC -> drawFox(unit, FoxLook.EPIC, eyesClosed, playT)
             }
         }
 
@@ -119,6 +165,73 @@ fun PixelArtPet(
 
 private enum class FoxLook { KIT, YOUNG, EPIC }
 
+private data class TapMotion(
+    val rotation: Float,
+    val scaleX: Float,
+    val scaleY: Float,
+    val translationX: Float,
+    val translationY: Float,
+)
+
+private fun tapDurationMs(stage: EvolutionStage): Int = when (stage) {
+    EvolutionStage.EGG -> 720
+    EvolutionStage.BABY -> 640
+    EvolutionStage.YOUNG -> 700
+    EvolutionStage.EPIC -> 560
+}
+
+/** Un movimiento distinto por etapa al tocar. */
+private fun tapMotion(stage: EvolutionStage, t: Float, unit: Float): TapMotion {
+    if (t <= 0f) {
+        return TapMotion(0f, 1f, 1f, 0f, 0f)
+    }
+    val decay = 1f - t
+    val pi = PI.toFloat()
+    return when (stage) {
+        EvolutionStage.EGG -> {
+            val wiggle = sin(t * pi * 6f) * decay
+            TapMotion(
+                rotation = wiggle * 18f,
+                scaleX = 1f + abs(wiggle) * 0.08f,
+                scaleY = 1f - abs(wiggle) * 0.07f,
+                translationX = wiggle * unit * 0.04f,
+                translationY = 0f,
+            )
+        }
+        EvolutionStage.BABY -> {
+            val hop = abs(sin(t * pi * 2f))
+            val squash = sin(t * pi * 4f).coerceAtLeast(0f) * decay
+            TapMotion(
+                rotation = sin(t * pi * 2f) * 8f * decay,
+                scaleX = 1f + squash * 0.10f,
+                scaleY = 1f - squash * 0.12f + hop * 0.06f,
+                translationX = 0f,
+                translationY = -hop * unit * 0.16f,
+            )
+        }
+        EvolutionStage.YOUNG -> {
+            val leap = abs(sin(t * pi * 2f))
+            TapMotion(
+                rotation = sin(t * pi * 2f) * 14f * decay,
+                scaleX = 1f + leap * 0.03f,
+                scaleY = 1f + sin(t * pi) * 0.04f,
+                translationX = sin(t * pi) * unit * 0.12f,
+                translationY = -leap * unit * 0.14f,
+            )
+        }
+        EvolutionStage.EPIC -> {
+            val pulse = sin(t * pi)
+            TapMotion(
+                rotation = sin(t * pi * 2f) * 7f * decay,
+                scaleX = 1f + pulse * 0.16f,
+                scaleY = 1f + pulse * 0.16f,
+                translationX = 0f,
+                translationY = -pulse * unit * 0.08f,
+            )
+        }
+    }
+}
+
 private val FurOrange = Color(0xFFE56B1F)
 private val FurDeep = Color(0xFFC45312)
 private val FurCream = Color(0xFFFFF4E4)
@@ -131,7 +244,7 @@ private val EggShade = Color(0xFFE4D4B0)
 private val EggSpot = Color(0xFF7EC4F0)
 private val CheckTeal = Color(0xFF14C8B8)
 
-private fun DrawScope.drawFoxEgg(unit: Float) {
+private fun DrawScope.drawFoxEgg(unit: Float, play: Float) {
     val cx = size.width / 2f
     val cy = size.height * 0.56f
     val eggW = unit * 0.46f
@@ -140,8 +253,9 @@ private fun DrawScope.drawFoxEgg(unit: Float) {
     // Orejas del zorro asomando: se entiende qué hay dentro.
     val earH = unit * 0.16f
     val earW = unit * 0.13f
-    drawEar(cx - unit * 0.11f, cy - eggH * 0.52f, earW, earH, lean = -12f)
-    drawEar(cx + unit * 0.11f, cy - eggH * 0.52f, earW, earH, lean = 12f)
+    val earWiggle = sin(play * PI.toFloat() * 6f) * 10f * (1f - play)
+    drawEar(cx - unit * 0.11f, cy - eggH * 0.52f, earW, earH, lean = -12f + earWiggle)
+    drawEar(cx + unit * 0.11f, cy - eggH * 0.52f, earW, earH, lean = 12f - earWiggle)
 
     drawOval(
         color = EggShade,
@@ -158,7 +272,7 @@ private fun DrawScope.drawFoxEgg(unit: Float) {
     drawCircle(EggSpot.copy(alpha = 0.7f), unit * 0.02f, Offset(cx + unit * 0.02f, cy - unit * 0.08f))
 }
 
-private fun DrawScope.drawFox(unit: Float, look: FoxLook, eyesClosed: Boolean) {
+private fun DrawScope.drawFox(unit: Float, look: FoxLook, eyesClosed: Boolean, play: Float) {
     val cx = size.width / 2f
     val bodyScale = when (look) {
         FoxLook.KIT -> 0.82f
@@ -171,13 +285,15 @@ private fun DrawScope.drawFox(unit: Float, look: FoxLook, eyesClosed: Boolean) {
         else -> 0.38f
     }
     val bodyTop = headCy + headR * 0.55f
+    val tailWag = sin(play * PI.toFloat() * 5f) * unit * 0.03f * (1f - play)
 
-    drawTail(cx + headR * 0.95f, bodyTop + unit * 0.10f, unit * bodyScale, look)
+    drawTail(cx + headR * 0.95f + tailWag, bodyTop + unit * 0.10f, unit * bodyScale, look)
     drawBody(cx, bodyTop, unit * bodyScale, look)
     drawHead(cx, headCy, headR, look, eyesClosed)
 
     if (look == FoxLook.EPIC) {
-        drawCheckBubble(cx + headR * 0.95f, headCy + headR * 0.55f, unit * 0.13f)
+        val bubblePulse = 1f + sin(play * PI.toFloat()) * 0.22f
+        drawCheckBubble(cx + headR * 0.95f, headCy + headR * 0.55f, unit * 0.13f * bubblePulse)
     }
 }
 

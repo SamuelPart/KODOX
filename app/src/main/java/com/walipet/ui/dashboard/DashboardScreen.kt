@@ -80,6 +80,7 @@ fun DashboardScreen(
             PixelArtPet(
                 stage = stage,
                 mood = state.mood,
+                interactive = true,
                 modifier = Modifier.size(210.dp),
             )
         }
