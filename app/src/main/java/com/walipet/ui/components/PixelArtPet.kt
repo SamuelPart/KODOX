@@ -14,10 +14,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.graphics.drawscope.translate
 import com.walipet.engine.model.EvolutionStage
 import com.walipet.engine.model.PetMood
 import com.walipet.ui.theme.ArcadeOnSurface
-import com.walipet.ui.theme.ArcadePrimary
 import com.walipet.ui.theme.ArcadeSecondary
 import com.walipet.ui.theme.ArcadeStreak
 import com.walipet.ui.theme.ArcadeTertiary
@@ -25,11 +30,8 @@ import kotlin.math.PI
 import kotlin.math.sin
 
 /**
- * Renderiza al WaliPet como pixel art puro (sin assets de imagen): cada
- * sprite es una rejilla de 16×16 caracteres mapeada a colores, dibujada con
- * Canvas y animada (bote, parpadeo y efectos según el estado de ánimo).
- *
- * Los sprites están diseñados a mano en [Sprite.rows] (16 columnas exactas).
+ * El WaliPet: el mismo zorro del icono, dibujado con forma clara
+ * (orejas puntiagudas, hocico, cola) para que se reconozca al instante.
  */
 @Composable
 fun PixelArtPet(
@@ -37,10 +39,8 @@ fun PixelArtPet(
     mood: PetMood,
     modifier: Modifier = Modifier,
 ) {
-    val sprite = Sprite.forStage(stage)
     val transition = rememberInfiniteTransition(label = "pet")
 
-    // Bote suave arriba/abajo.
     val bob by transition.animateFloat(
         initialValue = 0f,
         targetValue = 1f,
@@ -51,7 +51,6 @@ fun PixelArtPet(
         label = "bob",
     )
 
-    // Parpadeo: mantiene los ojos abiertos ~2 s y parpadea 200 ms.
     val blink by transition.animateFloat(
         initialValue = 0f,
         targetValue = 1f,
@@ -67,7 +66,6 @@ fun PixelArtPet(
         label = "blink",
     )
 
-    // Fase para corazones / gota / Z (efectos flotantes).
     val effectPhase by transition.animateFloat(
         initialValue = 0f,
         targetValue = 1f,
@@ -80,70 +78,293 @@ fun PixelArtPet(
     val eyesClosed = mood == PetMood.SLEEPING || blink > 0.5f
 
     Canvas(modifier = modifier) {
-        val grid = 16
-        val cell = size.minDimension / grid
-
-        // Sombra en el suelo.
-        val shadowW = cell * 12f
-        drawOval(
-            color = Color.Black.copy(alpha = 0.35f),
-            topLeft = Offset((size.width - shadowW) / 2f, size.height - cell * 1.2f),
-            size = Size(shadowW, cell * 0.9f),
-        )
-
-        // Desplazamiento vertical por el bote (y por el ánimo).
-        val bobOffset = sin(bob * 2 * PI).toFloat() * cell * 0.35f
-        val sleepDrift = if (mood == PetMood.SLEEPING) sin(effectPhase * 2 * PI).toFloat() * cell * 0.15f else 0f
+        val unit = size.minDimension
+        val bobOffset = sin(bob * 2 * PI).toFloat() * unit * 0.025f
+        val sleepDrift = if (mood == PetMood.SLEEPING) {
+            sin(effectPhase * 2 * PI).toFloat() * unit * 0.012f
+        } else {
+            0f
+        }
         val yShift = bobOffset + sleepDrift
 
-        val startX = (size.width - cell * grid) / 2f
-        val startY = (size.height - cell * grid) / 2f + yShift
+        drawOval(
+            color = Color.Black.copy(alpha = 0.18f),
+            topLeft = Offset(size.width * 0.22f, size.height * 0.86f),
+            size = Size(size.width * 0.56f, unit * 0.08f),
+        )
 
-        // Píxeles del sprite (los ojos cerrados se pintan del color del cuerpo).
-        sprite.rows.forEachIndexed { row, line ->
-            line.forEachIndexed { col, ch ->
-                val color = sprite.palette[ch] ?: return@forEachIndexed
-                val drawColor = if (eyesClosed && ch in sprite.eyeChars) sprite.bodyColor else color
-                drawRect(
-                    color = drawColor,
-                    topLeft = Offset(startX + col * cell, startY + row * cell),
-                    size = Size(cell, cell),
-                )
+        translate(top = yShift) {
+            when (stage) {
+                EvolutionStage.EGG -> drawFoxEgg(unit)
+                EvolutionStage.BABY -> drawFox(unit, FoxLook.KIT, eyesClosed)
+                EvolutionStage.YOUNG -> drawFox(unit, FoxLook.YOUNG, eyesClosed)
+                EvolutionStage.EPIC -> drawFox(unit, FoxLook.EPIC, eyesClosed)
             }
         }
 
-        // Efectos según el ánimo.
         when (mood) {
             PetMood.HAPPY -> {
-                drawHeart(startX, startY, effectPhase, offsetCols = 2f, baseRow = 1f, color = ArcadeSecondary)
-                drawHeart(startX, startY, (effectPhase + 0.5f).mod(1f), offsetCols = 12f, baseRow = 2f, color = ArcadeStreak)
+                drawHeart(effectPhase, offsetX = unit * 0.16f, baseY = unit * 0.14f, color = ArcadeSecondary)
+                drawHeart((effectPhase + 0.5f).mod(1f), offsetX = unit * 0.78f, baseY = unit * 0.20f, color = ArcadeStreak)
             }
-            PetMood.SAD -> {
-                drawSweat(startX, startY, effectPhase, color = ArcadeTertiary)
-            }
+            PetMood.SAD -> drawSweat(effectPhase, color = ArcadeTertiary)
             PetMood.SLEEPING -> {
-                drawZ(startX, startY, effectPhase, offset = 1f, color = ArcadeTertiary)
-                drawZ(startX, startY, (effectPhase + 0.4f).mod(1f), offset = 2f, color = ArcadeOnSurface)
+                drawZ(effectPhase, offset = 1f, color = ArcadeTertiary)
+                drawZ((effectPhase + 0.4f).mod(1f), offset = 2f, color = ArcadeOnSurface)
             }
             PetMood.CONTENT -> Unit
         }
     }
 }
 
-private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawHeart(
-    startX: Float,
-    startY: Float,
-    phase: Float,
-    offsetCols: Float,
-    baseRow: Float,
-    color: Color,
+private enum class FoxLook { KIT, YOUNG, EPIC }
+
+private val FurOrange = Color(0xFFE56B1F)
+private val FurDeep = Color(0xFFC45312)
+private val FurCream = Color(0xFFFFF4E4)
+private val FurWhite = Color(0xFFFFFFF6)
+private val InnerEar = Color(0xFFFFB197)
+private val EyeDark = Color(0xFF1C140E)
+private val NoseDark = Color(0xFF2A2118)
+private val EggShell = Color(0xFFF6EED8)
+private val EggShade = Color(0xFFE4D4B0)
+private val EggSpot = Color(0xFF7EC4F0)
+private val CheckTeal = Color(0xFF14C8B8)
+
+private fun DrawScope.drawFoxEgg(unit: Float) {
+    val cx = size.width / 2f
+    val cy = size.height * 0.56f
+    val eggW = unit * 0.46f
+    val eggH = unit * 0.58f
+
+    // Orejas del zorro asomando: se entiende qué hay dentro.
+    val earH = unit * 0.16f
+    val earW = unit * 0.13f
+    drawEar(cx - unit * 0.11f, cy - eggH * 0.52f, earW, earH, lean = -12f)
+    drawEar(cx + unit * 0.11f, cy - eggH * 0.52f, earW, earH, lean = 12f)
+
+    drawOval(
+        color = EggShade,
+        topLeft = Offset(cx - eggW * 0.50f, cy - eggH * 0.42f),
+        size = Size(eggW, eggH),
+    )
+    drawOval(
+        color = EggShell,
+        topLeft = Offset(cx - eggW * 0.46f, cy - eggH * 0.46f),
+        size = Size(eggW * 0.92f, eggH * 0.92f),
+    )
+    drawCircle(EggSpot, unit * 0.035f, Offset(cx - unit * 0.08f, cy + unit * 0.02f))
+    drawCircle(EggSpot, unit * 0.025f, Offset(cx + unit * 0.10f, cy + unit * 0.10f))
+    drawCircle(EggSpot.copy(alpha = 0.7f), unit * 0.02f, Offset(cx + unit * 0.02f, cy - unit * 0.08f))
+}
+
+private fun DrawScope.drawFox(unit: Float, look: FoxLook, eyesClosed: Boolean) {
+    val cx = size.width / 2f
+    val bodyScale = when (look) {
+        FoxLook.KIT -> 0.82f
+        FoxLook.YOUNG -> 0.94f
+        FoxLook.EPIC -> 1f
+    }
+    val headR = unit * 0.22f * bodyScale
+    val headCy = size.height * when (look) {
+        FoxLook.KIT -> 0.42f
+        else -> 0.38f
+    }
+    val bodyTop = headCy + headR * 0.55f
+
+    drawTail(cx + headR * 0.95f, bodyTop + unit * 0.10f, unit * bodyScale, look)
+    drawBody(cx, bodyTop, unit * bodyScale, look)
+    drawHead(cx, headCy, headR, look, eyesClosed)
+
+    if (look == FoxLook.EPIC) {
+        drawCheckBubble(cx + headR * 0.95f, headCy + headR * 0.55f, unit * 0.13f)
+    }
+}
+
+private fun DrawScope.drawTail(x: Float, y: Float, unit: Float, look: FoxLook) {
+    val tail = Path().apply {
+        moveTo(x - unit * 0.04f, y)
+        cubicTo(
+            x + unit * 0.22f, y - unit * 0.04f,
+            x + unit * 0.34f, y + unit * 0.10f,
+            x + unit * 0.18f, y + unit * 0.28f,
+        )
+        cubicTo(
+            x + unit * 0.08f, y + unit * 0.36f,
+            x - unit * 0.02f, y + unit * 0.18f,
+            x - unit * 0.04f, y,
+        )
+        close()
+    }
+    drawPath(tail, FurDeep)
+    val tip = Path().apply {
+        moveTo(x + unit * 0.16f, y + unit * 0.16f)
+        quadraticBezierTo(x + unit * 0.30f, y + unit * 0.18f, x + unit * 0.18f, y + unit * 0.28f)
+        quadraticBezierTo(x + unit * 0.08f, y + unit * 0.30f, x + unit * 0.16f, y + unit * 0.16f)
+        close()
+    }
+    drawPath(tip, FurWhite)
+    if (look == FoxLook.KIT) return
+}
+
+private fun DrawScope.drawBody(cx: Float, top: Float, unit: Float, look: FoxLook) {
+    val bodyW = unit * if (look == FoxLook.KIT) 0.34f else 0.38f
+    val bodyH = unit * if (look == FoxLook.KIT) 0.28f else 0.32f
+    drawOval(
+        color = FurOrange,
+        topLeft = Offset(cx - bodyW / 2f, top),
+        size = Size(bodyW, bodyH),
+    )
+    // Pecho crema: marca de zorro.
+    drawOval(
+        color = FurCream,
+        topLeft = Offset(cx - bodyW * 0.28f, top + bodyH * 0.12f),
+        size = Size(bodyW * 0.56f, bodyH * 0.70f),
+    )
+    val pawY = top + bodyH * 0.78f
+    val pawR = unit * 0.045f
+    drawCircle(FurDeep, pawR, Offset(cx - bodyW * 0.22f, pawY))
+    drawCircle(FurDeep, pawR, Offset(cx + bodyW * 0.22f, pawY))
+}
+
+private fun DrawScope.drawHead(
+    cx: Float,
+    cy: Float,
+    r: Float,
+    look: FoxLook,
+    eyesClosed: Boolean,
 ) {
-    val cell = size.minDimension / 16
+    val earW = r * 0.78f
+    val earH = r * 1.05f
+    drawEar(cx - r * 0.62f, cy - r * 0.55f, earW, earH, lean = -16f)
+    drawEar(cx + r * 0.62f, cy - r * 0.55f, earW, earH, lean = 16f)
+
+    // Cabeza: óvalo ancho, como el icono.
+    drawOval(
+        color = FurOrange,
+        topLeft = Offset(cx - r * 1.05f, cy - r * 0.92f),
+        size = Size(r * 2.10f, r * 1.95f),
+    )
+
+    // Mejillas / hocico crema (la “máscara” del zorro).
+    val muzzle = Path().apply {
+        moveTo(cx, cy + r * 0.82f)
+        cubicTo(
+            cx - r * 0.95f, cy + r * 0.55f,
+            cx - r * 0.88f, cy - r * 0.05f,
+            cx - r * 0.22f, cy + r * 0.05f,
+        )
+        lineTo(cx, cy + r * 0.18f)
+        lineTo(cx + r * 0.22f, cy + r * 0.05f)
+        cubicTo(
+            cx + r * 0.88f, cy - r * 0.05f,
+            cx + r * 0.95f, cy + r * 0.55f,
+            cx, cy + r * 0.82f,
+        )
+        close()
+    }
+    drawPath(muzzle, FurCream)
+
+    drawEyes(cx, cy, r, look, eyesClosed)
+
+    // Nariz triangular, apuntando abajo.
+    val nose = Path().apply {
+        moveTo(cx, cy + r * 0.42f)
+        lineTo(cx - r * 0.11f, cy + r * 0.30f)
+        lineTo(cx + r * 0.11f, cy + r * 0.30f)
+        close()
+    }
+    drawPath(nose, NoseDark)
+
+    // Boca suave en V.
+    val mouth = Path().apply {
+        moveTo(cx, cy + r * 0.44f)
+        quadraticBezierTo(cx - r * 0.10f, cy + r * 0.56f, cx - r * 0.20f, cy + r * 0.50f)
+        moveTo(cx, cy + r * 0.44f)
+        quadraticBezierTo(cx + r * 0.10f, cy + r * 0.56f, cx + r * 0.20f, cy + r * 0.50f)
+    }
+    drawPath(mouth, NoseDark, style = Stroke(width = r * 0.06f, cap = StrokeCap.Round))
+}
+
+private fun DrawScope.drawEar(cx: Float, baseY: Float, w: Float, h: Float, lean: Float) {
+    rotate(lean, pivot = Offset(cx, baseY + h * 0.15f)) {
+        val outer = Path().apply {
+            moveTo(cx, baseY - h)
+            lineTo(cx - w * 0.55f, baseY + h * 0.15f)
+            quadraticBezierTo(cx, baseY + h * 0.28f, cx + w * 0.55f, baseY + h * 0.15f)
+            close()
+        }
+        drawPath(outer, FurOrange)
+        val inner = Path().apply {
+            moveTo(cx, baseY - h * 0.72f)
+            lineTo(cx - w * 0.22f, baseY + h * 0.02f)
+            lineTo(cx + w * 0.22f, baseY + h * 0.02f)
+            close()
+        }
+        drawPath(inner, InnerEar)
+    }
+}
+
+private fun DrawScope.drawEyes(
+    cx: Float,
+    cy: Float,
+    r: Float,
+    look: FoxLook,
+    eyesClosed: Boolean,
+) {
+    val eyeY = cy - r * 0.08f
+    val eyeDx = r * 0.38f
+    val eyeW = r * if (look == FoxLook.KIT) 0.28f else 0.24f
+    val eyeH = r * if (look == FoxLook.KIT) 0.32f else 0.28f
+
+    fun one(x: Float) {
+        if (eyesClosed) {
+            val lid = Path().apply {
+                moveTo(x - eyeW, eyeY)
+                quadraticBezierTo(x, eyeY + eyeH * 0.35f, x + eyeW, eyeY)
+            }
+            drawPath(lid, EyeDark, style = Stroke(width = r * 0.07f, cap = StrokeCap.Round))
+        } else {
+            drawOval(
+                color = EyeDark,
+                topLeft = Offset(x - eyeW, eyeY - eyeH),
+                size = Size(eyeW * 2f, eyeH * 2f),
+            )
+            drawCircle(
+                color = FurWhite,
+                radius = eyeW * 0.28f,
+                center = Offset(x - eyeW * 0.25f, eyeY - eyeH * 0.30f),
+            )
+        }
+    }
+    one(cx - eyeDx)
+    one(cx + eyeDx)
+}
+
+private fun DrawScope.drawCheckBubble(cx: Float, cy: Float, r: Float) {
+    drawCircle(CheckTeal, r, Offset(cx, cy))
+    drawCircle(FurWhite, r * 0.86f, Offset(cx, cy))
+    val tail = Path().apply {
+        moveTo(cx - r * 0.15f, cy + r * 0.72f)
+        lineTo(cx - r * 0.55f, cy + r * 1.25f)
+        lineTo(cx + r * 0.22f, cy + r * 0.78f)
+        close()
+    }
+    drawPath(tail, FurWhite)
+    val check = Path().apply {
+        moveTo(cx - r * 0.38f, cy)
+        lineTo(cx - r * 0.08f, cy + r * 0.32f)
+        lineTo(cx + r * 0.42f, cy - r * 0.28f)
+    }
+    drawPath(check, CheckTeal, style = Stroke(width = r * 0.18f, cap = StrokeCap.Round))
+}
+
+private fun DrawScope.drawHeart(phase: Float, offsetX: Float, baseY: Float, color: Color) {
+    val cell = size.minDimension / 16f
     val rise = phase * cell * 1.6f
     val sway = sin(phase * 2 * PI).toFloat() * cell * 0.3f
-    val x = startX + offsetCols * cell + sway
-    val y = startY + baseRow * cell - rise
-    // Corazón de 3×3 píxeles.
+    val x = offsetX + sway
+    val y = baseY - rise
     drawRect(color, Offset(x + cell, y), Size(cell, cell))
     drawRect(color, Offset(x + 2 * cell, y), Size(cell, cell))
     drawRect(color, Offset(x, y + cell), Size(cell, cell))
@@ -152,172 +373,22 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawHeart(
     drawRect(color, Offset(x + cell, y + 2 * cell), Size(cell, cell))
 }
 
-private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawSweat(
-    startX: Float,
-    startY: Float,
-    phase: Float,
-    color: Color,
-) {
-    val cell = size.minDimension / 16
-    val x = startX + 13f * cell + sin(phase * 2 * PI).toFloat() * cell * 0.2f
-    val y = startY + 3f * cell + phase * cell * 0.8f
+private fun DrawScope.drawSweat(phase: Float, color: Color) {
+    val cell = size.minDimension / 16f
+    val x = size.minDimension * 0.78f + sin(phase * 2 * PI).toFloat() * cell * 0.2f
+    val y = size.minDimension * 0.22f + phase * cell * 0.8f
     drawRect(color, Offset(x + cell, y), Size(cell, cell))
     drawRect(color, Offset(x, y + cell), Size(cell, cell))
     drawRect(color, Offset(x + cell, y + cell), Size(cell, cell))
     drawRect(color, Offset(x + cell, y + 2 * cell), Size(cell, cell))
 }
 
-private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawZ(
-    startX: Float,
-    startY: Float,
-    phase: Float,
-    offset: Float,
-    color: Color,
-) {
-    val cell = size.minDimension / 16
+private fun DrawScope.drawZ(phase: Float, offset: Float, color: Color) {
+    val cell = size.minDimension / 16f
     val rise = phase * cell * (2f + offset)
-    val x = startX + (12f + offset * 2f) * cell
-    val y = startY + (3f - offset) * cell - rise
+    val x = size.minDimension * 0.72f + offset * cell * 2f
+    val y = size.minDimension * 0.16f - offset * cell - rise
     drawRect(color, Offset(x, y), Size(cell * 2, cell))
     drawRect(color, Offset(x + cell, y + cell), Size(cell, cell))
     drawRect(color, Offset(x, y + 2 * cell), Size(cell * 2, cell))
-}
-
-/** Sprite pixel art: filas de 16 caracteres + paleta. */
-private class Sprite(
-    val rows: List<String>,
-    val palette: Map<Char, Color>,
-    /** Caracteres que representan los ojos (se "cierran" al parpadear/dormir). */
-    val eyeChars: Set<Char> = setOf('W', 'B'),
-) {
-    /** Color dominante del cuerpo (se usa al cerrar los ojos). */
-    val bodyColor: Color = palette[dominantBodyChar] ?: ArcadePrimary
-
-    private val dominantBodyChar: Char
-        get() = rows.flatMap { it.toList() }
-            .filter { it != '.' }
-            .groupingBy { it }
-            .eachCount()
-            .maxByOrNull { it.value }
-            ?.key
-            ?: 'C'
-
-    companion object {
-        fun forStage(stage: EvolutionStage): Sprite = when (stage) {
-            EvolutionStage.EGG -> egg()
-            EvolutionStage.BABY -> baby()
-            EvolutionStage.YOUNG -> young()
-            EvolutionStage.EPIC -> epic()
-        }
-
-        private fun egg(): Sprite {
-            val c = Color(0xFFF5F0DC) // cáscara crema
-            val s = Color(0xFF9BD8F5) // motas
-            return Sprite(
-                rows = listOf(
-                    "................",
-                    ".....CCCCCC.....",
-                    "....CCCCCCCC....",
-                    "...CCCCCCCCCC...",
-                    "..CCCCCCCCCCCC..",
-                    "..CCCCCCCCCCCC..",
-                    ".CCCCCCCCCCCCCC.",
-                    ".CCCCCCCCCCCCCC.",
-                    ".CCCCCCCCCCCCCC.",
-                    "..CCCCCCCCCCCC..",
-                    ".CCSCCCCCCCCCCC.",
-                    ".CCCCCCCCCCCSCC.",
-                    "...CCCCCCCCCC...",
-                    ".....CCCCCC.....",
-                ),
-                palette = mapOf('C' to c, 'S' to s),
-            )
-        }
-
-        private fun baby(): Sprite {
-            val g = ArcadePrimary
-            val d = Color(0xFF0D0A1F)
-            val w = Color(0xFFF2EFFF)
-            val b = Color(0xFF0D0A1F)
-            val p = ArcadeSecondary
-            return Sprite(
-                rows = listOf(
-                    "................",
-                    ".....GGGGGG.....",
-                    "....GGGGGGGG....",
-                    "...GGGGGGGGGG...",
-                    "..GGGGGGGGGGGG..",
-                    "..GGWGGGGGGWGG..",
-                    "..GWBBGGGGBBWG..",
-                    "..GGWGGGGGGWGG..",
-                    "..GGPGGGGGGPGG..",
-                    "..GGGGGDDGGGGG..",
-                    "...GGGGGGGGGG...",
-                    "....GGGGGGGG....",
-                ),
-                palette = mapOf('G' to g, 'D' to d, 'W' to w, 'B' to b, 'P' to p),
-            )
-        }
-
-        private fun young(): Sprite {
-            val g = ArcadePrimary
-            val d = Color(0xFF0D0A1F)
-            val w = Color(0xFFF2EFFF)
-            val b = Color(0xFF0D0A1F)
-            val p = ArcadeSecondary
-            val a = ArcadeTertiary // antena
-            val y = ArcadeStreak  // orbe
-            return Sprite(
-                rows = listOf(
-                    "......AA........",
-                    "......AA........",
-                    "......AY........",
-                    ".....GGGGGG.....",
-                    "....GGGGGGGG....",
-                    "...GGGGGGGGGG...",
-                    "..GGGGGGGGGGGG..",
-                    ".GGGGGGGGGGGGGG.",
-                    ".GGWGGGGGGGGWGG.",
-                    ".GWBBGGGGGGBBWG.",
-                    ".GGWGGGGGGGGWGG.",
-                    ".GGPGGGGGGGGPGG.",
-                    ".GGGGGDDGGGGGGG.",
-                    "...GGGGGGGGGG...",
-                ),
-                palette = mapOf('G' to g, 'D' to d, 'W' to w, 'B' to b, 'P' to p, 'A' to a, 'Y' to y),
-            )
-        }
-
-        private fun epic(): Sprite {
-            val m = Color(0xFF9AA7C0) // metal
-            val v = ArcadeTertiary  // visor
-            val e = Color(0xFFE8FBFF) // brillo del visor
-            val g = ArcadePrimary
-            val d = Color(0xFF0D0A1F)
-            val y = ArcadeStreak
-            val r = ArcadeSecondary // núcleo
-            return Sprite(
-                rows = listOf(
-                    "..Y..........Y..",
-                    "..D..........D..",
-                    "..DDDDDDDDDDDD..",
-                    ".DMMMMMMMMMMMMD.",
-                    ".DMMMMMMMMMMMMD.",
-                    ".DVVVVVVVVVVVVD.",
-                    ".DVVEEVVVVEEVVD.",
-                    ".DVVVVVVVVVVVVD.",
-                    ".DMMMMMMMMMMMMD.",
-                    ".DMMDMMMMMMDMMD.",
-                    ".DDDDDDDDDDDDDD.",
-                    "..GGGGGGGGGGGG..",
-                    "..GMDDDDDDDDMG..",
-                    "..GMDDRRRRDDMG..",
-                    "..GMDDDDDDDDMG..",
-                    "..GGGGGGGGGGGG..",
-                ),
-                palette = mapOf('M' to m, 'V' to v, 'E' to e, 'G' to g, 'D' to d, 'Y' to y, 'R' to r),
-                eyeChars = setOf('E'),
-            )
-        }
-    }
 }

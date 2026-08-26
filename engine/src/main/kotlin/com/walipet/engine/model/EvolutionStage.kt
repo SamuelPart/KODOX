@@ -3,10 +3,10 @@ package com.walipet.engine.model
 /**
  * Etapas de evolución visual del WaliPet, según el nivel alcanzado:
  *
- *  - [EGG]    Huevo digital      (Niveles 1-2)
- *  - [BABY]   Criatura pequeña   (Niveles 3-5)
- *  - [YOUNG]  Mascota joven      (Niveles 6-9)
- *  - [EPIC]   Mascota épica      (Niveles 10+)
+ *  - [EGG]    Huevo de zorro     (Niveles 1-2)
+ *  - [BABY]   Zorrito            (Niveles 3-5)
+ *  - [YOUNG]  Zorro joven        (Niveles 6-9)
+ *  - [EPIC]   Zorro épico        (Niveles 10+)
  *
  * La UI mapea estas etapas a los sprites pixel art correspondientes.
  */
