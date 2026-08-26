@@ -129,6 +129,8 @@ fun SetupScreen(
             onToggle = {
                 voiceOver = it
                 settings.voiceOverEnabled = it
+                val sl = ServiceLocator.getInstance(context.applicationContext)
+                if (it) sl.voiceOver.warmup() else sl.voiceOver.stop()
             },
         )
 

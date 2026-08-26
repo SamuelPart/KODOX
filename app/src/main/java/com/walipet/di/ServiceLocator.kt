@@ -52,6 +52,13 @@ class ServiceLocator private constructor(context: Context) {
     /** Voz en off: lee en voz alta los mensajes que te envían (no las respuestas automáticas). */
     val voiceOver: VoiceOver by lazy { VoiceOver(appContext) }
 
+    /** Enciende el motor TTS de antemano para que la primera lectura arranque en ≤ 2 s. */
+    fun preloadVoiceOver() {
+        if (settingsRepository.voiceOverEnabled) {
+            voiceOver.warmup()
+        }
+    }
+
     /** Siembra los datos iniciales (mascota + reglas de ejemplo) en primer uso. */
     private fun seedIfNeeded() {
         appScope.launch {

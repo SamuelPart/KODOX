@@ -18,8 +18,9 @@ import kotlinx.coroutines.launch
  * Filtra SOLO paquetes de WhatsApp. Las notificaciones que no son de un chat
  * (llamadas, WhatsApp Web, copias de seguridad, estados…) se descartan: no
  * se leen ni se responden. Los mensajes que te envían de la última hora se
- * leen al pie de la letra; el resto se resume. La respuesta automática
- * **no** se lee. Cada lectura real alimenta el huevo y la racha.
+ * leen al pie de la letra (arranque ≤ 2 s); el resto se resume. La
+ * respuesta automática **no** se lee. Cada lectura real alimenta el huevo
+ * y la racha.
  */
 class WaliPetNotificationListener : NotificationListenerService() {
 
@@ -44,8 +45,8 @@ class WaliPetNotificationListener : NotificationListenerService() {
                 nowEpochMilli = System.currentTimeMillis(),
                 isOwnReply = ReplyGuard::wasSent,
             )
-            val spoken = voiceOver.speakLines(lines)
-            if (spoken.isNotEmpty()) {
+            voiceOver.speakLines(lines) { spoken ->
+                if (spoken.isEmpty()) return@speakLines
                 scope.launch {
                     spoken.forEach { _ ->
                         val progress = serviceLocator.petRepository.recordSpokenMessage()
@@ -78,6 +79,7 @@ class WaliPetNotificationListener : NotificationListenerService() {
     override fun onListenerConnected() {
         super.onListenerConnected()
         serviceLocator.notificationHelper.cancelListenerDisabled()
+        serviceLocator.preloadVoiceOver()
     }
 
     override fun onListenerDisconnected() {
