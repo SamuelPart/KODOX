@@ -182,29 +182,29 @@ private fun DrawScope.drawFox(unit: Float, look: FoxLook, eyesClosed: Boolean) {
 }
 
 private fun DrawScope.drawTail(x: Float, y: Float, unit: Float, look: FoxLook) {
+    val s = if (look == FoxLook.KIT) 0.78f else 1f
     val tail = Path().apply {
         moveTo(x - unit * 0.04f, y)
         cubicTo(
-            x + unit * 0.22f, y - unit * 0.04f,
-            x + unit * 0.34f, y + unit * 0.10f,
-            x + unit * 0.18f, y + unit * 0.28f,
+            x + unit * 0.22f * s, y - unit * 0.04f,
+            x + unit * 0.34f * s, y + unit * 0.10f * s,
+            x + unit * 0.18f * s, y + unit * 0.28f * s,
         )
         cubicTo(
-            x + unit * 0.08f, y + unit * 0.36f,
-            x - unit * 0.02f, y + unit * 0.18f,
+            x + unit * 0.08f * s, y + unit * 0.36f * s,
+            x - unit * 0.02f, y + unit * 0.18f * s,
             x - unit * 0.04f, y,
         )
         close()
     }
     drawPath(tail, FurDeep)
     val tip = Path().apply {
-        moveTo(x + unit * 0.16f, y + unit * 0.16f)
-        quadraticBezierTo(x + unit * 0.30f, y + unit * 0.18f, x + unit * 0.18f, y + unit * 0.28f)
-        quadraticBezierTo(x + unit * 0.08f, y + unit * 0.30f, x + unit * 0.16f, y + unit * 0.16f)
+        moveTo(x + unit * 0.16f * s, y + unit * 0.16f * s)
+        quadraticBezierTo(x + unit * 0.30f * s, y + unit * 0.18f * s, x + unit * 0.18f * s, y + unit * 0.28f * s)
+        quadraticBezierTo(x + unit * 0.08f * s, y + unit * 0.30f * s, x + unit * 0.16f * s, y + unit * 0.16f * s)
         close()
     }
     drawPath(tip, FurWhite)
-    if (look == FoxLook.KIT) return
 }
 
 private fun DrawScope.drawBody(cx: Float, top: Float, unit: Float, look: FoxLook) {
