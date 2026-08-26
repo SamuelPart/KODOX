@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Glifo monocromo: mascota + burbuja de mensaje (icono temático Android 13+). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Cabeza (zona segura ~18–90) -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M54,30
+            C46,30 40,34 36,40
+            C32,36 28,38 28,44
+            C28,46 29,48 31,49
+            C29,54 28,59 32,66
+            C36,74 44,80 54,80
+            C64,80 72,74 76,66
+            C80,59 79,54 77,49
+            C79,48 80,46 80,44
+            C80,38 76,36 72,40
+            C68,34 62,30 54,30 Z" />
+
+    <!-- Oreja izquierda interior -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M38,42 C40,38 44,36 46,40 C43,42 40,44 38,42 Z" />
+
+    <!-- Ojos -->
+    <path
+        android:fillColor="#000000"
+        android:fillAlpha="0.35"
+        android:pathData="M42,54 a4.2,5 0 1,0 8.4,0 a4.2,5 0 1,0 -8.4,0" />
+    <path
+        android:fillColor="#000000"
+        android:fillAlpha="0.35"
+        android:pathData="M57.6,54 a4.2,5 0 1,0 8.4,0 a4.2,5 0 1,0 -8.4,0" />
+
+    <!-- Nariz -->
+    <path
+        android:fillColor="#000000"
+        android:fillAlpha="0.35"
+        android:pathData="M54,64 c-2.2,0 -3.4,1.6 -2.2,3.1 C53,68.4 54,69 54,69 c0,0 1,-0.6 2.2,-1.9 C57.4,65.6 56.2,64 54,64 Z" />
+
+    <!-- Burbuja de mensaje -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M78,68
+            a12,12 0 1,0 0.1,0
+            Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M82,88 l4,-6 h-3 z" />
+
+    <!-- Check -->
+    <path
+        android:fillColor="#000000"
+        android:fillAlpha="0.4"
+        android:strokeWidth="0"
+        android:pathData="M73.5,75.2 l3.2,3.2 6.6,-6.6 1.8,1.8 -8.4,8.4 -5,-5 z" />
+</vector>
