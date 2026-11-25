@@ -15,6 +15,8 @@ import { SectionHeading } from './SectionPrimitives';
 function ProjectCard({ project, onQuote, index }) {
   const reduce = useReducedMotion();
   const [imageLoaded, setImageLoaded] = useState(false);
+  // Si todavía no hay URL real de la demo, no mostramos un enlace muerto.
+  const hasDemo = Boolean(project.url && project.url.trim());
 
   return (
     <motion.article
@@ -132,18 +134,32 @@ function ProjectCard({ project, onQuote, index }) {
 
         {/* Acciones */}
         <div className="mt-5 flex flex-col gap-2 sm:flex-row">
-          <motion.a
-            href={project.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            whileHover={{ y: -2 }}
-            whileTap={{ scale: 0.96 }}
-            className="group/demo flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-[12.5px] font-medium text-zinc-200 transition-colors duration-300 hover:border-indigo-400/50 hover:bg-indigo-500/10 hover:text-white"
-          >
-            <ExternalLink className="h-3.5 w-3.5" />
-            {siteConfig.ctaLabels.demo}
-            <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover/demo:-translate-y-0.5 group-hover/demo:translate-x-0.5" />
-          </motion.a>
+          {hasDemo ? (
+            <motion.a
+              href={project.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              whileHover={{ y: -2 }}
+              whileTap={{ scale: 0.96 }}
+              className="group/demo flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-[12.5px] font-medium text-zinc-200 transition-colors duration-300 hover:border-indigo-400/50 hover:bg-indigo-500/10 hover:text-white"
+            >
+              <ExternalLink className="h-3.5 w-3.5" />
+              {siteConfig.ctaLabels.demo}
+              <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover/demo:-translate-y-0.5 group-hover/demo:translate-x-0.5" />
+            </motion.a>
+          ) : (
+            <motion.button
+              type="button"
+              onClick={() => onQuote?.({ businessType: project.categoryLabel, need: project.quoteType })}
+              whileHover={{ y: -2 }}
+              whileTap={{ scale: 0.96 }}
+              className="group/demo flex flex-1 items-center justify-center gap-2 rounded-xl border border-dashed border-white/15 bg-white/[0.02] px-4 py-2.5 text-[12.5px] font-medium text-zinc-400 transition-colors duration-300 hover:border-cyan-400/50 hover:text-white"
+              title="Muy pronto: pídeme el acceso anticipado por WhatsApp"
+            >
+              <Sparkles className="h-3.5 w-3.5 text-cyan-300" />
+              Ver demo (pedir acceso)
+            </motion.button>
+          )}
 
           <motion.button
             type="button"
