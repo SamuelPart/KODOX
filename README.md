@@ -1,153 +1,132 @@
-# WaliPet 🤖✨
+# KODOX — Digital Studio Trujillo
 
-**Tu mascota pixel art que responde WhatsApp por ti.**
+Sitio web oficial de marca personal y estudio de desarrollo web. React 18 + Vite + Tailwind CSS v3 + Framer Motion + Lucide React. Listo para desplegar en Vercel.
 
-WaliPet combina un *NotificationListenerService* con un motor de gamificación
-estilo Tamagotchi: cada vez que un mensaje de WhatsApp coincide con una regla
-lógica configurada por ti, WaliPet responde automáticamente por `RemoteInput`
-(incluso con la pantalla apagada), y tu mascota gana XP, mantiene su racha
-diaria y evoluciona a través de 4 etapas pixel art.
-
-> 🔒 **Privacidad primero:** todos los mensajes se procesan **100 % localmente
-> en tu dispositivo**. WaliPet no tiene permisos de red ni sube ningún texto
-> a servidores.
+![Stack](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-5-646CFF?style=flat-square&logo=vite&logoColor=white)
+![Tailwind](https://img.shields.io/badge/Tailwind-3-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
+![Framer Motion](https://img.shields.io/badge/Framer_Motion-11-E035C2?style=flat-square&logo=framer&logoColor=white)
 
 ---
 
-## ✨ Funcionalidades
-
-| Pantalla | Qué hace |
-|---|---|
-| **Hábitat** (Dashboard) | Mascota pixel art animada con estados de ánimo (feliz, triste, dormida), barra de XP estilo RPG, racha diaria 🔥, energía/felicidad y actividad reciente. |
-| **Reglas** (Rule Builder) | Crea reglas del tipo *"Si el mensaje contiene «precio» → responde «Hola, te enviaremos la información en un momento.»"* con modos de coincidencia (exacta, contiene, empieza con, regex), ámbito de chats (todos/privados/grupos) y mayúsculas sensibles. |
-| **Codex** | Línea de evolución (Huevo → Cría → Joven → Épica) y 12 logros/medallas desbloqueables. |
-| **Stats** | Métricas de impacto: respuestas hoy/semana/mes, XP total, tiempo ahorrado estimado (45 s por respuesta), gráfico de los últimos 7 días y feed de actividad en tiempo real. |
-| **Onboarding** | Guía paso a paso de los permisos especiales (acceso a notificaciones, notificaciones de la app, exención de batería). |
-
-**Gamificación (motor `engine`):**
-- XP por automatización: **+15 XP** (bonus **+10 XP** si es la primera del día).
-- Curva de niveles progresiva: `100 × nivel` XP para subir (N1→2: 100, N2→3: 200, …).
-- Racha diaria: automatizar al menos una vez al día mantiene/crece la racha.
-- Estados de ánimo derivados de la actividad reciente (energía y felicidad 0-100).
-
----
-
-## 🏗️ Arquitectura y stack
-
-```
-app/    Android App (MVVM + Compose)     ── UI, Room, servicios Android
-engine/ Biblioteca Kotlin pura (JVM)     ── motor de reglas, XP, rachas,
-                                             parser de WhatsApp, stats
-```
-
-- **Lenguaje:** Kotlin 2.0 (corrutinas + Flow).
-- **UI:** Jetpack Compose (Material 3) con tema retro/arcade propio y sprites
-  pixel art dibujados por código (sin assets de imagen).
-- **Arquitectura:** MVVM + módulo de dominio puro (`engine`) + capa de datos (Room).
-- **Persistencia:** Room (`pet`, `rules`, `automation_logs`).
-- **DI:** `ServiceLocator` manual (sin Hilt, build ligero y auditable).
-- **Notificaciones:** `NotificationListenerService` + `RemoteInput`
-  (inyección de respuestas sin abrir WhatsApp).
-
-```
-Notificación WhatsApp ──► NotificationListenerService
-                              │
-                              ▼
-              NotificationExtractor (Android) ──► NotificationRawData
-                              │
-                              ▼
-              WhatsAppMessageParser (engine, puro) ──► ParsedWhatsAppMessage
-                              │
-                              ▼
-              RuleEngine (engine, puro) ──► regla coincidente
-                              │
-                              ▼
-              AutomatedReplier ──► RemoteInput.addResultsToIntent + actionIntent.send()
-                              │
-                              ▼
-         PetRepository.recordAutomation() (+XP, +racha)  →  Log en Room  →  notificación "+XP"
-```
-
----
-
-## 🛠️ Requisitos y build
-
-- **Android Studio** (última estable) con JDK 17+.
-- **compileSdk 35**, minSdk 26 (Android 8.0+), targetSdk 35.
-- Gradle 8.11.1 (el *wrapper* del proyecto lo descarga automáticamente).
+## 1. Arranque rápido
 
 ```bash
-# Abrir el proyecto con Android Studio y esperar a la sincronización.
-# Luego:
-./gradlew :engine:test      # tests unitarios del motor
-./gradlew :app:testDebugUnitTest   # tests unitarios de la app
-./gradlew :app:installDebug # instalar en dispositivo/emulador
+npm install
+npm run dev      # http://localhost:5173
+npm run build    # estático en /dist
+npm run preview  # sirve el build en http://localhost:4173
 ```
 
-> Los tests del motor (`engine`) también se pueden ejecutar sin Gradle con un
-> `kotlinc` local: el script de verificación se documenta en `engine/README.md`
-> (el repo incluye los JARs de JUnit 4.13.2 y kotlin-test necesarios).
+## 2. Todo se edita en un solo archivo
 
-### Permisos que pide la app (y por qué)
+`src/data/portfolioData.js` contiene **todos** los textos, precios y enlaces del sitio:
 
-1. **Acceso a notificaciones** (permiso especial de sistema): necesario para que
-   el `NotificationListenerService` lea las notificaciones de WhatsApp.
-   Se concede en *Ajustes → Acceso a notificaciones* (onboarding incluido).
-2. **Notificaciones** (`POST_NOTIFICATIONS`, Android 13+): para avisarte cuando
-   WaliPet responde y gana XP.
-3. **Exención de batería** (opcional): en teléfonos con ahorro agresivo de
-   batería (Xiaomi, Huawei, Samsung…), evita que el sistema mate el servicio.
-4. **`RECEIVE_BOOT_COMPLETED`**: el watchdog recuerda al usuario si el acceso a
-   notificaciones se desactivó tras un reinicio.
+| Bloque | Qué controla |
+| --- | --- |
+| `siteConfig.brand` | Nombre del sitio (`KODOX`), "Digital Studio Trujillo", tu nombre, métricas. |
+| `siteConfig.contact` | WhatsApp (`51999999999`), correo, redes, horario, dominio. |
+| `siteConfig.hero` | Badge, titular, subtítulo, KPIs y datos del mockup de celular. |
+| `siteConfig.marquee` | Tecnologías y capacidades de la cinta infinita. |
+| `siteConfig.portfolio` | Filtros + los 6 proyectos con `url` real de Vercel, imágenes de Unsplash y tags. |
+| `siteConfig.services` | Bento grid de los 6+ servicios. |
+| `siteConfig.process` | Los 4 pasos del proceso con tiempos y entregables. |
+| `siteConfig.pricing` | Planes en Soles (S/ 150 / 250 / 400), características y garantías. |
+| `siteConfig.quoteModal` | Opciones del cotizador (tipo de negocio, necesidad, presupuesto, plazos). |
+| `siteConfig.faq` | Acordeón de preguntas frecuentes. |
+| `siteConfig.footer` | CTA final, columnas de enlaces y textos legales. |
 
----
+### Cambiar el número de WhatsApp
 
-## 🧪 Testing
+```js
+// src/data/portfolioData.js
+contact: {
+  whatsapp: '51987654321',        // formato internacional, sin "+" ni espacios
+  whatsappDisplay: '+51 987 654 321',
+}
+```
 
-- **Motor (67 tests):** reglas (exacta/contiene/prefijo/regex, ámbito, orden),
-  parser de WhatsApp (privados, grupos 👥, mensajes estructurados, casos
-  límite), XP y curvas de nivel, rachas, estados de ánimo, estadísticas y
-  logros. `./gradlew :engine:test`
-- **App (unit):** formateadores de tiempo/duración.
-- **App (instrumentación):** integración Room (escritura/lectura de las 3
-  tablas) y flujo motor→regla en dispositivo. `./gradlew :app:connectedAndroidTest`
+Todos los botones (hero, navbar, tarjetas, planes, cotizador, footer y botón flotante) usan `buildWhatsAppLink()` y se actualizan automáticamente.
 
----
+### Cambiar los enlaces de las demos
 
-## ⚠️ Retos técnicos y limitaciones conocidas
+```js
+projects: [
+  { id: 'wira', url: 'https://cevicheria-wira.vercel.app', /* ... */ },
+]
+```
 
-1. **El formato de las notificaciones de WhatsApp cambia con el tiempo.**
-   El parser usa heurísticas en cascada (mensajes estructurados
-   `MessagingStyle`/`Wearable` → emoji 👥 → prefijo `Remitente: …` → chat
-   privado). Si Meta cambia el empaquetado, puede requerir ajustes en
-   `WhatsAppMessageParser` (los tests del motor permiten detectarlo y
-   corregirlo rápido).
-2. **`RemoteInput` por `PendingIntent.send()`** replica el mecanismo del botón
-   "Responder" de la notificación. Funciona con pantalla apagada, pero si
-   WhatsApp cambia su acción de respuesta, el envío podría requerir revisión.
-3. **Fabricantes agresivos con la batería**: la exención del ahorro y el
-   watchdog ayudan, pero algunas ROMs matan servicios de terceros; es el
-   comportamiento esperado de Android y no se puede eludir sin permisos de
-   sistema.
-4. **Detección de grupos sin emoji 👥 ni mensajes estructurados** es
-   heurística: se usa un prefijo corto (≤ 24 caracteres, ≤ 2 palabras) para
-   evitar falsos positivos en chats privados con ":" en el texto.
-5. **Android 13/14+ restringen el trabajo en segundo plano**: la app guía al
-   usuario con onboarding y no intenta eludir las restricciones del sistema.
+### Cambiar el nombre de la marca
 
----
+```js
+brand: { name: 'KODOX', studio: 'Digital Studio Trujillo' }
+```
 
-## 🗺️ Roadmap
+También actualiza `<title>` y el favicon en `index.html` si quieres que coincida al 100 %.
 
-- [ ] Servicio en primer plano opcional (FGS) con notificación persistente para
-      ROMs agresivas.
-- [ ] Sincronización de estadísticas (gráficos semanales/mensuales más ricos).
-- [ ] Más modos de coincidencia (frases completas, "cualquiera de…").
-- [ ] Sonido retro opcional al ganar XP (estilo Game Boy).
-- [ ] Temas alternativos (Game Boy, Neo-Geo) y más sprites.
+## 3. Dirección de arte
 
----
+- **Fondo:** negro obsidiana `#050507` con malla `bg-grid`, resplandores radiales índigo `#4F46E5` y cian `#06B6D4`.
+- **Tarjetas:** vidrio oscuro `bg-zinc-900/60 backdrop-blur-xl border-white/10` con borde iluminado al hover.
+- **Acentos:** degradado `indigo → purple → cyan` y verde WhatsApp `#16A34A` para conversión.
+- **Tipografías:** Space Grotesk (títulos), Inter (texto), JetBrains Mono (badges técnicos).
+- **Scrollbar oscuro**, glassmorphism, noise sutil y `prefers-reduced-motion` respetado.
 
-## 📄 Licencia
+## 4. Motion implementado
 
-Proyecto educativo/open source. No está afiliado a Meta ni a WhatsApp Inc.
+| Requisito | Dónde |
+| --- | --- |
+| Barra de progreso con `useScroll` + `useSpring` | `Navbar.jsx` + `ReadingProgress` en `App.jsx` |
+| Titular palabra por palabra con máscara | `HeroSection.jsx` → `MaskedHeadline` |
+| Orbes flotantes con `y`/`scale` en bucle | `HeroSection.jsx` |
+| Mockup 3D interactivo (tilt con `useMotionValue` + `useSpring`) | `HeroSection.jsx` → `PhoneMockup` |
+| Parallax del hero | `useScroll` + `useTransform` en `HeroSection.jsx` |
+| Marquee infinito sin cortes | `TechMarquee.jsx` (dos filas, una en reversa, pausa al hover) |
+| Filtros con `layoutId="portfolioFilterPill"` | `PortfolioShowcase.jsx` |
+| `AnimatePresence mode="popLayout"` | `PortfolioShowcase.jsx` |
+| Línea de progreso dibujada al hacer scroll | `ProcessTimeline.jsx` (`useScroll` vinculado al contenedor) |
+| Microinteracciones `whileHover={{ y: -6 }}` / `whileTap={{ scale: 0.96 }}` | Todas las tarjetas y botones |
+| Acordeón animado con altura automática | `FaqSection.jsx` |
+| Modal con pasos, progreso y resumen | `InteractiveQuoteModal.jsx` |
+
+## 5. Cotizador por WhatsApp
+
+El botón "Cotizar mi Web" (navbar), "Quiero una así" (cada proyecto), "Cotizar este servicio" y los planes abren el modal con los datos preseleccionados. Al enviar, se genera un mensaje estructurado con negocio, necesidad, presupuesto, plazo, nombre y detalles, y se abre WhatsApp.
+
+## 6. Despliegue en Vercel
+
+1. Sube el repositorio a GitHub.
+2. En Vercel → **Add New Project** → importa el repo.
+3. Framework preset: **Vite**. Build: `npm run build`. Output: `dist`.
+4. Deploy. `vercel.json` ya incluye rewrites SPA, cache de assets y cabeceras de seguridad.
+
+## 7. Estructura
+
+```
+├── index.html                  # Fuentes, SEO, favicon SVG
+├── package.json
+├── tailwind.config.js
+├── postcss.config.js
+├── vite.config.js
+├── vercel.json
+└── src
+    ├── App.jsx                 # Composición + botones flotantes + modal
+    ├── index.css               # Grid, glass, botones, scrollbar oscuro
+    ├── main.jsx
+    ├── data
+    │   └── portfolioData.js    # ⚙️ TODO lo editable
+    └── components
+        ├── SectionPrimitives.jsx   # Reveal, SectionHeading, helpers de motion
+        ├── Navbar.jsx
+        ├── HeroSection.jsx
+        ├── TechMarquee.jsx
+        ├── PortfolioShowcase.jsx
+        ├── ServicesGrid.jsx
+        ├── ProcessTimeline.jsx
+        ├── PricingPlans.jsx
+        ├── InteractiveQuoteModal.jsx
+        ├── FaqSection.jsx
+        └── Footer.jsx
+```
+
+> `SectionPrimitives.jsx` es el único archivo extra del plan original: contiene los componentes de revelado y encabezados reutilizados por todas las secciones para evitar duplicar código.
