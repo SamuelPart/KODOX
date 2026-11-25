@@ -1,0 +1,324 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   KODOX · Digital Studio Trujillo
+   Sistema visual: negro obsidiana, vidrio, gradientes neón.
+   ============================================================ */
+
+@layer base {
+  :root {
+    --obsidian: #050507;
+    --electric: #4f46e5;
+    --violet: #8b5cf6;
+    --neon: #06b6d4;
+    --whatsapp: #16a34a;
+    --grid-line: rgba(255, 255, 255, 0.045);
+    --nav-height: 76px;
+  }
+
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: calc(var(--nav-height) + 16px);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-obsidian font-sans text-zinc-300 antialiased;
+    min-height: 100vh;
+    overflow-x: hidden;
+    background-color: var(--obsidian);
+    background-image:
+      radial-gradient(ellipse 60% 50% at 12% -8%, rgba(79, 70, 229, 0.22), transparent 60%),
+      radial-gradient(ellipse 55% 45% at 90% 4%, rgba(6, 182, 212, 0.16), transparent 62%),
+      radial-gradient(ellipse 70% 60% at 50% 108%, rgba(139, 92, 246, 0.12), transparent 68%);
+    background-attachment: fixed;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5 {
+    @apply font-display text-white;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background: rgba(99, 102, 241, 0.4);
+    color: #ffffff;
+  }
+
+  :focus-visible {
+    outline: 2px solid rgba(129, 140, 248, 0.9);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+
+  /* Scrollbar oscuro tipo terminal */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #27272a #050507;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #050507;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #3f3f46, #18181b);
+    border-radius: 999px;
+    border: 2px solid #050507;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #6366f1, #4f46e5);
+  }
+}
+
+@layer components {
+  /* ---------- Fondo de malla geométrica ---------- */
+  .bg-grid {
+    background-image:
+      linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    background-size: 64px 64px;
+  }
+
+  .bg-grid-sm {
+    background-image:
+      linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+    background-size: 26px 26px;
+  }
+
+  .grid-fade {
+    -webkit-mask-image: radial-gradient(ellipse 75% 65% at 50% 30%, #000 20%, transparent 78%);
+    mask-image: radial-gradient(ellipse 75% 65% at 50% 30%, #000 20%, transparent 78%);
+  }
+
+  .bg-dots {
+    background-image: radial-gradient(rgba(255, 255, 255, 0.09) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+
+  /* ---------- Glassmorphism ---------- */
+  .glass {
+    @apply border border-white/10 bg-zinc-900/60 backdrop-blur-xl;
+  }
+
+  .glass-strong {
+    @apply border border-white/10 bg-zinc-950/80 backdrop-blur-2xl;
+  }
+
+  .glass-panel {
+    @apply rounded-3xl border border-white/10 bg-zinc-900/60 shadow-card backdrop-blur-xl;
+  }
+
+  /* Borde con degradado cónico */
+  .gradient-border {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(140deg, rgba(99, 102, 241, 0.75), rgba(139, 92, 246, 0.35) 45%, rgba(6, 182, 212, 0.6));
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* ---------- Texto con degradado ---------- */
+  .text-gradient {
+    @apply bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-300 bg-clip-text text-transparent;
+  }
+
+  .text-gradient-strong {
+    background-image: linear-gradient(100deg, #818cf8 0%, #a78bfa 40%, #22d3ee 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* ---------- Botones ---------- */
+  .btn {
+    @apply relative inline-flex items-center justify-center gap-2 rounded-full font-medium tracking-tight transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-50;
+    will-change: transform;
+  }
+
+  .btn-primary {
+    @apply btn bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-400 px-6 py-3 text-sm text-white shadow-[0_14px_40px_-14px_rgba(99,102,241,0.9)] hover:shadow-[0_20px_55px_-14px_rgba(99,102,241,1)];
+  }
+
+  .btn-ghost {
+    @apply btn border border-white/10 bg-white/[0.03] px-6 py-3 text-sm text-zinc-200 backdrop-blur-md hover:border-indigo-400/50 hover:bg-white/[0.06] hover:text-white;
+  }
+
+  .btn-whatsapp {
+    @apply btn bg-[#16A34A] px-6 py-3 text-sm font-semibold text-white shadow-glow-wa hover:bg-[#15a349];
+  }
+
+  .btn-icon {
+    @apply btn h-11 w-11 border border-white/10 bg-white/[0.03] text-zinc-300 hover:border-indigo-400/50 hover:text-white;
+  }
+
+  /* ---------- Etiquetas ---------- */
+  .chip {
+    @apply inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-400;
+  }
+
+  .section-label {
+    @apply inline-flex items-center gap-2 rounded-full border border-indigo-500/25 bg-indigo-500/[0.08] px-3.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-indigo-300;
+  }
+
+  /* ---------- Tarjetas ---------- */
+  .card-hover {
+    @apply transition-all duration-300 ease-out-expo hover:-translate-y-1.5 hover:border-indigo-500/50 hover:bg-zinc-900/80;
+  }
+
+  .noise::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .divider-glow {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.45), rgba(6, 182, 212, 0.35), transparent);
+  }
+
+  .mask-fade-x {
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+  }
+
+  /* ---------- Marquee (respaldo CSS) ---------- */
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    animation: marquee 42s linear infinite;
+  }
+
+  .marquee-track-reverse {
+    display: flex;
+    width: max-content;
+    animation: marqueeReverse 52s linear infinite;
+  }
+
+  .marquee-group:hover .marquee-track,
+  .marquee-group:hover .marquee-track-reverse {
+    animation-play-state: paused;
+  }
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  @keyframes marqueeReverse {
+    from {
+      transform: translateX(-50%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+
+  /* ---------- Mockup de celular ---------- */
+  .phone-frame {
+    background: linear-gradient(160deg, #27272a 0%, #09090b 55%, #18181b 100%);
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.09),
+      0 40px 100px -30px rgba(0, 0, 0, 1),
+      0 0 90px -30px rgba(79, 70, 229, 0.65);
+  }
+
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
+  .perspective-1000 {
+    perspective: 1200px;
+  }
+
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .bg-300\% {
+    background-size: 300% 100%;
+  }
+
+  .animate-gradient {
+    background-size: 220% 220%;
+    animation: gradient-pan 7s ease infinite;
+  }
+
+  @keyframes gradient-pan {
+    0%,
+    100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  .drop-shadow-glow {
+    filter: drop-shadow(0 0 18px rgba(99, 102, 241, 0.55));
+  }
+}
+
+/* Respeto a usuarios con movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
