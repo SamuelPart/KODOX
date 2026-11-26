@@ -1,0 +1,6 @@
+@echo off
+echo Instalando edge-tts (si hace falta)...
+pip install edge-tts
+echo Generando voz en off...
+python "%~dp0generate_voiceover.py"
+pause

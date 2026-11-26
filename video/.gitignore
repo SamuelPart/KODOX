@@ -1,6 +1,10 @@
 node_modules/
 out/
 dist/
+# Render outputs
 *.mp4
 *.webm
 *.mov
+# Keep SFX and placeholder audio tracked
+!public/sfx/*.wav
+!public/audio/voiceover.mp3
