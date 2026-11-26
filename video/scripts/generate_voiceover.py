@@ -9,30 +9,32 @@ import asyncio
 import os
 import edge_tts
 
-VOICE = "es-MX-JorgeNeural"  # Masculina, mexicana, firme y natural
+VOICE = "es-MX-JorgeNeural"
 OUTPUT = os.path.join(os.path.dirname(__file__), "..", "public", "audio", "voiceover.mp3")
 
 TEXT = """
-Cada día... se pierden oportunidades en silencio.
+¿Tu negocio pierde clientes... sin que te des cuenta?
 
-Un mensaje sin responder. Una pregunta que llega tarde. Un cliente que se cansa de esperar.
+Mensajes sin responder. Clientes preguntando lo mismo. Pedidos que se confunden. Y tú, corriendo de un lado a otro.
 
-No es falta de ganas. Es falta de claridad.
+No es falta de esfuerzo. Es que te falta un sistema claro.
 
-Cuando la información está dispersa... horarios por un lado, precios por otro, detalles en mil lugares... todo se vuelve más difícil.
+En KODOX resolvemos ese problema.
 
-Pero cuando todo está claro... las respuestas llegan rápido. La confusión desaparece. Y el tiempo vuelve a lo importante.
+Creamos páginas y cartas digitales rápidas, donde tus clientes ven tu menú, hacen su pedido y te escriben por WhatsApp en segundos.
 
-Organizar la información no es un lujo. Es una forma de cuidar el tiempo de las personas.
+Sin confusión. Sin mensajes perdidos. Sin perder ventas.
 
-La tecnología debería simplificar la vida... no complicarla.
+Tu negocio se ve profesional, tus clientes encuentran lo que buscan, y tú recuperas el control.
 
-KODOX. Claridad que se nota.
+Más claridad. Más pedidos. Más tiempo para ti.
+
+KODOX. Haz que tu negocio trabaje contigo, no contra ti.
 """.strip()
 
 async def main():
     os.makedirs(os.path.dirname(OUTPUT), exist_ok=True)
-    communicate = edge_tts.Communicate(TEXT, VOICE, rate="-8%", pitch="-1Hz")
+    communicate = edge_tts.Communicate(TEXT, VOICE, rate="-2%", pitch="-1Hz")
     await communicate.save(OUTPUT)
     print(f"Voz generada: {os.path.abspath(OUTPUT)}")
 
