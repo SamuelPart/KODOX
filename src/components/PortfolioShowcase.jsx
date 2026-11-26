@@ -3,114 +3,227 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import {
   ArrowUpRight,
   ExternalLink,
-  Layers3,
   MessageCircle,
+  Monitor,
+  Smartphone,
   Sparkles,
-  Star,
 } from 'lucide-react';
 import { siteConfig, projectInquiryLink } from '../data/portfolioData';
 import { SectionHeading } from './SectionPrimitives';
 
-/* Tarjeta individual de proyecto */
-function ProjectCard({ project, onQuote, index }) {
+const DEVICE_MODES = [
+  { id: 'desktop', label: 'PC', icon: Monitor, aria: 'Vista de escritorio' },
+  { id: 'mobile', label: 'Móvil', icon: Smartphone, aria: 'Vista móvil' },
+];
+
+function DeviceToggle({ value, onChange, groupId }) {
+  return (
+    <div
+      role="radiogroup"
+      aria-label="Cambiar vista previa de dispositivo"
+      className="inline-flex items-center gap-1 rounded-xl border border-white/10 bg-black/40 p-1 backdrop-blur-md"
+    >
+      {DEVICE_MODES.map((mode) => {
+        const Icon = mode.icon;
+        const active = value === mode.id;
+        return (
+          <button
+            key={mode.id}
+            type="button"
+            role="radio"
+            aria-checked={active}
+            aria-label={mode.aria}
+            onClick={() => onChange(mode.id)}
+            className={`relative inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-medium transition-colors duration-200 ${
+              active ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'
+            }`}
+          >
+            {active && (
+              <motion.span
+                layoutId={`device-pill-${groupId}`}
+                className="absolute inset-0 -z-10 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-500 shadow-[0_8px_20px_-10px_rgba(99,102,241,1)]"
+                transition={{ type: 'spring', stiffness: 380, damping: 32, mass: 0.7 }}
+              />
+            )}
+            <Icon className="relative h-3.5 w-3.5" />
+            <span className="relative">{mode.label}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function DemoPreview({ project, device, reduce }) {
+  const isMobile = device === 'mobile';
+
+  return (
+    <div className="relative flex w-full items-center justify-center px-3 pb-3 pt-2 sm:px-5 sm:pb-5">
+      {/* Glow behind frame */}
+      <div
+        aria-hidden="true"
+        className={`pointer-events-none absolute inset-x-10 top-6 h-40 rounded-full bg-gradient-to-r ${project.accent} blur-[70px] opacity-70`}
+      />
+
+      <motion.div
+        layout
+        transition={{ type: 'spring', stiffness: 260, damping: 30 }}
+        className={`relative w-full ${
+          isMobile ? 'max-w-[320px] sm:max-w-[360px]' : 'max-w-full'
+        }`}
+      >
+        <motion.div
+          layout
+          transition={{ type: 'spring', stiffness: 260, damping: 30 }}
+          className={`relative overflow-hidden border border-white/10 bg-zinc-950 shadow-card ${
+            isMobile
+              ? 'rounded-[2.2rem] ring-1 ring-white/10'
+              : 'rounded-2xl ring-1 ring-white/5'
+          }`}
+        >
+          {/* Browser / phone top bar */}
+          <div
+            className={`relative flex items-center border-b border-white/10 bg-zinc-900/90 ${
+              isMobile ? 'justify-center px-4 py-3' : 'gap-3 px-4 py-2.5'
+            }`}
+          >
+            {isMobile ? (
+              <div className="flex flex-col items-center gap-1">
+                <span className="h-1.5 w-16 rounded-full bg-zinc-700" />
+                <span className="h-1 w-1 rounded-full bg-zinc-600" />
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center gap-1.5" aria-hidden="true">
+                  <span className="h-2.5 w-2.5 rounded-full bg-rose-400/80" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-amber-300/80" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/80" />
+                </div>
+                <div className="flex min-w-0 flex-1 items-center justify-center">
+                  <div className="flex w-full max-w-sm min-w-0 items-center gap-2 rounded-lg border border-white/10 bg-black/40 px-3 py-1.5">
+                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.9)]" />
+                    <span className="truncate font-mono text-[10px] tracking-tight text-zinc-400">
+                      {project.url.replace(/^https?:\/\//, '')}
+                    </span>
+                  </div>
+                </div>
+                <div className="hidden w-[52px] sm:block" aria-hidden="true" />
+              </>
+            )}
+          </div>
+
+          {/* Screen */}
+          <motion.div
+            layout
+            transition={{ type: 'spring', stiffness: 260, damping: 30 }}
+            className={`relative bg-[#050507] ${
+              isMobile ? 'aspect-[9/19]' : 'aspect-[16/10]'
+            }`}
+          >
+            {/* Loading skeleton */}
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 animate-pulse bg-gradient-to-b from-zinc-800/40 via-zinc-900/40 to-zinc-950/60"
+            />
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-zinc-600"
+            >
+              <Sparkles className="h-5 w-5 text-indigo-400/60" />
+              <span className="font-mono text-[10px] uppercase tracking-[0.2em]">
+                Cargando demo
+              </span>
+            </div>
+
+            <iframe
+              src={project.url}
+              title={`Vista previa de ${project.title}`}
+              loading="lazy"
+              className="relative z-10 h-full w-full border-0 bg-white"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
+            />
+          </motion.div>
+
+          {/* Mobile home indicator */}
+          {isMobile && (
+            <div className="flex justify-center bg-zinc-900/90 py-2">
+              <span className="h-1 w-24 rounded-full bg-zinc-700" />
+            </div>
+          )}
+        </motion.div>
+
+        {/* Floating device label */}
+        <div className="pointer-events-none absolute -bottom-2 left-1/2 -translate-x-1/2">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-zinc-950/90 px-3 py-1 font-mono text-[9px] uppercase tracking-[0.16em] text-zinc-400 shadow-lg backdrop-blur-md">
+            <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.9)]" />
+            {isMobile ? 'Vista móvil' : 'Vista escritorio'}
+          </span>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+function DemoShowcaseCard({ project, index, onQuote }) {
   const reduce = useReducedMotion();
-  const [imageLoaded, setImageLoaded] = useState(false);
-  // Si todavía no hay URL real de la demo, no mostramos un enlace muerto.
-  const hasDemo = Boolean(project.url && project.url.trim());
+  const [device, setDevice] = useState('desktop');
 
   return (
     <motion.article
-      layout
-      initial={reduce ? false : { opacity: 0, y: 40, scale: 0.97 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={reduce ? { opacity: 0 } : { opacity: 0, y: -18, scale: 0.96 }}
-      transition={{
-        duration: 0.55,
-        delay: index * 0.05,
-        ease: [0.16, 1, 0.3, 1],
-        layout: { type: 'spring', stiffness: 240, damping: 28 },
-      }}
-      whileHover={reduce ? {} : { y: -6 }}
-      className="group relative flex flex-col overflow-hidden rounded-3xl border border-white/10 bg-zinc-900/60 shadow-card backdrop-blur-xl transition-colors duration-300 hover:border-indigo-500/50"
+      initial={reduce ? false : { opacity: 0, y: 36 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.15 }}
+      transition={{ duration: 0.7, delay: index * 0.08, ease: [0.16, 1, 0.3, 1] }}
+      className="group relative flex flex-col overflow-hidden rounded-3xl border border-white/10 bg-zinc-900/50 shadow-card backdrop-blur-xl"
     >
-      {/* Resplandor superior */}
       <div
         aria-hidden="true"
-        className={`pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b ${project.accent} opacity-70 transition-opacity duration-500 group-hover:opacity-100`}
+        className={`pointer-events-none absolute inset-x-0 top-0 h-48 bg-gradient-to-b ${project.accent} opacity-60`}
       />
 
-      {/* Imagen */}
-      <div className="relative aspect-[16/10] overflow-hidden">
-        <div className="absolute inset-0 animate-pulse bg-zinc-800/60" aria-hidden="true" />
-
-        <img
-          src={project.image}
-          alt={project.alt}
-          loading={index < 2 ? 'eager' : 'lazy'}
-          decoding="async"
-          onLoad={() => setImageLoaded(true)}
-          className={`relative h-full w-full object-cover transition-all duration-[900ms] ease-out-expo ${
-            imageLoaded ? 'scale-100 opacity-100 blur-0' : 'scale-105 opacity-0 blur-md'
-          } group-hover:scale-[1.06]`}
-        />
-
-        {/* Capas de contraste */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#050507] via-[#050507]/45 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/25 via-transparent to-cyan-900/15 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-
-        {/* Badges */}
-        <div className="absolute inset-x-3 top-3 flex flex-wrap items-center justify-between gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-black/55 px-2.5 py-1 font-mono text-[8.5px] uppercase tracking-[0.14em] text-zinc-200 backdrop-blur-md">
-            <Layers3 className="h-2.5 w-2.5 text-cyan-300" />
-            {project.categoryLabel}
-          </span>
-
-          {project.featured && (
-            <span className="inline-flex items-center gap-1 rounded-full border border-amber-400/25 bg-amber-400/15 px-2.5 py-1 font-mono text-[8.5px] uppercase tracking-[0.14em] text-amber-200 backdrop-blur-md">
-              <Star className="h-2.5 w-2.5 fill-amber-300 text-amber-300" />
-              Destacado
+      {/* Header */}
+      <div className="relative flex flex-col gap-4 px-5 pt-5 sm:flex-row sm:items-start sm:justify-between sm:px-6 sm:pt-6">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.14em] text-zinc-300">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.9)]" />
+              Demo real
             </span>
-          )}
+            <span className="rounded-full border border-white/10 bg-black/30 px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.14em] text-zinc-500">
+              {project.categoryLabel}
+            </span>
+          </div>
+          <h3 className="mt-3 font-display text-xl font-semibold leading-tight text-white sm:text-2xl">
+            {project.title}
+          </h3>
+          <p className="mt-1 text-[13px] font-medium text-indigo-300/90">{project.subtitle}</p>
         </div>
 
-        {/* Métricas (aparecen al hover) */}
-        <div className="absolute inset-x-3 bottom-3 flex translate-y-3 items-center gap-2 opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">
-          {project.metrics.map((metric) => (
-            <span
-              key={metric.label}
-              className="flex-1 rounded-xl border border-white/10 bg-black/60 px-2 py-1.5 text-center backdrop-blur-md"
-            >
-              <span className="block font-display text-[13px] font-bold leading-none text-white">
-                {metric.value}
-              </span>
-              <span className="mt-0.5 block font-mono text-[7px] uppercase tracking-[0.12em] text-zinc-400">
-                {metric.label}
-              </span>
-            </span>
-          ))}
+        <div className="shrink-0">
+          <DeviceToggle value={device} onChange={setDevice} groupId={project.id} />
         </div>
-
-        <span className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full border border-white/10 bg-black/50 px-2 py-1 font-mono text-[8px] text-zinc-400 backdrop-blur-md">
-          {project.year}
-        </span>
       </div>
 
-      {/* Contenido */}
-      <div className="relative flex flex-1 flex-col p-5">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <h3 className="font-display text-lg font-semibold leading-tight text-white transition-colors duration-300 group-hover:text-cyan-300">
-              {project.title}
-            </h3>
-            <p className="mt-0.5 text-[12.5px] font-medium text-indigo-300/90">
-              {project.subtitle}
-            </p>
-          </div>
-        </div>
+      {/* Preview */}
+      <div className="relative mt-2">
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={device}
+            initial={reduce ? false : { opacity: 0, y: 16, scale: 0.985 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={reduce ? { opacity: 0 } : { opacity: 0, y: -12, scale: 0.985 }}
+            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <DemoPreview project={project} device={device} reduce={reduce} />
+          </motion.div>
+        </AnimatePresence>
+      </div>
 
-        <p className="mt-3 text-[13px] leading-relaxed text-zinc-400">{project.description}</p>
+      {/* Info + actions */}
+      <div className="relative flex flex-1 flex-col px-5 pb-5 sm:px-6 sm:pb-6">
+        <p className="text-[13px] leading-relaxed text-zinc-400">{project.description}</p>
 
-        {/* Tags */}
         <ul className="mt-4 flex flex-wrap gap-1.5">
           {project.tags.map((tag) => (
             <li
@@ -122,44 +235,19 @@ function ProjectCard({ project, onQuote, index }) {
           ))}
         </ul>
 
-        {/* Stack */}
-        <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[9px] text-zinc-600">
-          {project.tech.map((tech, techIndex) => (
-            <span key={tech} className="inline-flex items-center gap-2">
-              {tech}
-              {techIndex < project.tech.length - 1 && <span className="text-zinc-700">·</span>}
-            </span>
-          ))}
-        </div>
-
-        {/* Acciones */}
         <div className="mt-5 flex flex-col gap-2 sm:flex-row">
-          {hasDemo ? (
-            <motion.a
-              href={project.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              whileHover={{ y: -2 }}
-              whileTap={{ scale: 0.96 }}
-              className="group/demo flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-[12.5px] font-medium text-zinc-200 transition-colors duration-300 hover:border-indigo-400/50 hover:bg-indigo-500/10 hover:text-white"
-            >
-              <ExternalLink className="h-3.5 w-3.5" />
-              {siteConfig.ctaLabels.demo}
-              <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover/demo:-translate-y-0.5 group-hover/demo:translate-x-0.5" />
-            </motion.a>
-          ) : (
-            <motion.button
-              type="button"
-              onClick={() => onQuote?.({ businessType: project.categoryLabel, need: project.quoteType })}
-              whileHover={{ y: -2 }}
-              whileTap={{ scale: 0.96 }}
-              className="group/demo flex flex-1 items-center justify-center gap-2 rounded-xl border border-dashed border-white/15 bg-white/[0.02] px-4 py-2.5 text-[12.5px] font-medium text-zinc-400 transition-colors duration-300 hover:border-cyan-400/50 hover:text-white"
-              title="Muy pronto: pídeme el acceso anticipado por WhatsApp"
-            >
-              <Sparkles className="h-3.5 w-3.5 text-cyan-300" />
-              Ver demo (pedir acceso)
-            </motion.button>
-          )}
+          <motion.a
+            href={project.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            whileHover={{ y: -2 }}
+            whileTap={{ scale: 0.96 }}
+            className="group/link flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-[12.5px] font-medium text-zinc-200 transition-colors duration-300 hover:border-indigo-400/50 hover:bg-indigo-500/10 hover:text-white"
+          >
+            <ExternalLink className="h-3.5 w-3.5" />
+            Abrir sitio real
+            <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover/link:-translate-y-0.5 group-hover/link:translate-x-0.5" />
+          </motion.a>
 
           <motion.button
             type="button"
@@ -178,7 +266,6 @@ function ProjectCard({ project, onQuote, index }) {
           </motion.button>
         </div>
 
-        {/* Enlace WhatsApp con contexto del proyecto */}
         <a
           href={projectInquiryLink(project)}
           target="_blank"
@@ -194,36 +281,27 @@ function ProjectCard({ project, onQuote, index }) {
 }
 
 export default function PortfolioShowcase({ onQuote }) {
-  const [activeFilter, setActiveFilter] = useState('all');
-  const { filters, projects, eyebrow, title, subtitle } = siteConfig.portfolio;
+  const { projects, eyebrow, title, subtitle } = siteConfig.portfolio;
 
-  const visibleProjects = useMemo(
-    () =>
-      activeFilter === 'all'
-        ? projects
-        : projects.filter((project) => project.category === activeFilter),
-    [activeFilter, projects]
+  const demos = useMemo(
+    () => projects.filter((project) => project.url && project.url.trim()),
+    [projects]
   );
-
-  const countFor = (filterId) =>
-    filterId === 'all' ? projects.length : projects.filter((p) => p.category === filterId).length;
 
   return (
     <section id="proyectos" className="relative scroll-mt-24 overflow-hidden py-20 sm:py-28">
-      {/* Fondo */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute left-1/2 top-0 h-72 w-[700px] -translate-x-1/2 rounded-full bg-indigo-600/10 blur-[120px]" />
         <div className="bg-dots grid-fade absolute inset-0 opacity-40" />
       </div>
 
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <SectionHeading
           eyebrow={eyebrow}
           title={title}
           subtitle={subtitle}
           accentWord="Interactivas"
         >
-          {/* Píldora de estado */}
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
@@ -232,86 +310,21 @@ export default function PortfolioShowcase({ onQuote }) {
             className="mt-1 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.16em] text-zinc-400"
           >
             <Sparkles className="h-3 w-3 text-cyan-300" />
-            {projects.length} demos reales desplegadas en Vercel
+            {demos.length} demos reales desplegadas en Vercel
           </motion.div>
         </SectionHeading>
 
-        {/* ---------- Filtros ---------- */}
-        <div className="mt-10 flex justify-center">
-          <div
-            role="tablist"
-            aria-label="Filtrar proyectos por categoría"
-            className="scrollbar-none flex max-w-full gap-1.5 overflow-x-auto rounded-2xl border border-white/10 bg-zinc-900/50 p-1.5 backdrop-blur-xl"
-          >
-            {filters.map((filter) => {
-              const isActive = activeFilter === filter.id;
-
-              return (
-                <button
-                  key={filter.id}
-                  role="tab"
-                  aria-selected={isActive}
-                  type="button"
-                  onClick={() => setActiveFilter(filter.id)}
-                  className={`relative shrink-0 whitespace-nowrap rounded-xl px-3.5 py-2 text-[12px] font-medium transition-colors duration-200 ${
-                    isActive ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'
-                  }`}
-                >
-                  {isActive && (
-                    <motion.span
-                      layoutId="portfolioFilterPill"
-                      className="absolute inset-0 -z-10 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 shadow-[0_8px_24px_-10px_rgba(99,102,241,1)]"
-                      transition={{ type: 'spring', stiffness: 380, damping: 32, mass: 0.7 }}
-                    />
-                  )}
-                  <span className="relative flex items-center gap-1.5">
-                    {filter.label}
-                    <span
-                      className={`rounded-md px-1 py-0.5 font-mono text-[8.5px] ${
-                        isActive ? 'bg-white/20 text-white' : 'bg-white/[0.06] text-zinc-500'
-                      }`}
-                    >
-                      {countFor(filter.id)}
-                    </span>
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+        <div className="mt-12 grid grid-cols-1 gap-6 xl:grid-cols-2">
+          {demos.map((project, index) => (
+            <DemoShowcaseCard
+              key={project.id}
+              project={project}
+              index={index}
+              onQuote={onQuote}
+            />
+          ))}
         </div>
 
-        {/* ---------- Grid animado ---------- */}
-        <motion.div
-          layout
-          className="mt-9 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3"
-        >
-          <AnimatePresence mode="popLayout">
-            {visibleProjects.map((project, index) => (
-              <ProjectCard
-                key={project.id}
-                project={project}
-                index={index}
-                onQuote={onQuote}
-              />
-            ))}
-          </AnimatePresence>
-        </motion.div>
-
-        {/* Estado vacío (nunca debería verse, pero es buena práctica) */}
-        <AnimatePresence>
-          {visibleProjects.length === 0 && (
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="mt-10 text-center text-sm text-zinc-500"
-            >
-              Aún no hay demos en esta categoría. Escríbeme y te muestro algo en vivo.
-            </motion.p>
-          )}
-        </AnimatePresence>
-
-        {/* ---------- CTA final ---------- */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}

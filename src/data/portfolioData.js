@@ -161,7 +161,7 @@ export const siteConfig = {
         image:
           'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=1400&q=80',
         alt: 'Plato de ceviche peruano servido en mesa',
-        url: '', // <-- pega aquí la URL real de la demo en Vercel
+        url: 'https://wira-six.vercel.app/',
         tags: ['40 platos', 'Selector de ají', 'Mesa / Delivery', 'Cálculo de vuelto'],
         tech: ['React', 'Vite', 'Tailwind', 'WhatsApp API'],
         accent: 'from-cyan-500/25 via-indigo-500/15 to-transparent',
@@ -185,7 +185,7 @@ export const siteConfig = {
         image:
           'https://images.unsplash.com/photo-1567620832903-9fc6debc209f?auto=format&fit=crop&w=1400&q=80',
         alt: 'Alitas de pollo glaseadas en bar oscuro',
-        url: '', // <-- pega aquí la URL real de la demo en Vercel
+        url: 'https://debarrioalitas.vercel.app/',
         tags: ['Dark mode', 'Combos', 'Nivel de picante', 'Pedido nocturno'],
         tech: ['React', 'Tailwind', 'Framer Motion', 'WhatsApp API'],
         accent: 'from-amber-500/25 via-orange-500/12 to-transparent',
@@ -209,7 +209,7 @@ export const siteConfig = {
         image:
           'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=1400&q=80',
         alt: 'Panes artesanales recién horneados',
-        url: '', // <-- pega aquí la URL real de la demo en Vercel
+        url: 'https://alvinaa.vercel.app/',
         tags: ['Catálogo QR', 'Recojo en tienda', 'Horarios', 'Nov promociones'],
         tech: ['React', 'Vite', 'Tailwind', 'Google Sheets'],
         accent: 'from-orange-400/22 via-rose-400/10 to-transparent',
@@ -257,7 +257,7 @@ export const siteConfig = {
         image:
           'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=1400&q=80',
         alt: 'Barbero cortando el cabello a un cliente',
-        url: '', // <-- pega aquí la URL real de la demo en Vercel
+        url: 'https://23-barber.vercel.app/',
         tags: ['Escáner facial IA', 'MediaPipe', 'Agenda citas', 'Recomendación de corte'],
         tech: ['React', 'MediaPipe', 'TensorFlow.js', 'Tailwind'],
         accent: 'from-indigo-500/25 via-sky-500/12 to-transparent',
